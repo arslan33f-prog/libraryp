@@ -1,0 +1,1535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cornerstone School Manager</title>
+<style>
+  :root{
+    --paper:#F6F1E4;
+    --paper-dim:#EFE8D6;
+    --ink:#20261F;
+    --ink-soft:#5B6155;
+    --rule:#D8CDAE;
+    --green:#33553E;
+    --green-deep:#233C2C;
+    --red:#8C3B2E;
+    --gold:#B5862B;
+    --white:#FFFDF8;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family: Georgia, 'Times New Roman', serif;
+    line-height:1.4;
+  }
+  .app{max-width:1180px;margin:0 auto;padding:28px 22px 80px;}
+
+  /* Header */
+  .masthead{
+    display:flex; justify-content:space-between; align-items:flex-end;
+    border-bottom:3px solid var(--ink);
+    padding-bottom:14px;
+    margin-bottom:22px;
+    gap:16px;
+    flex-wrap:wrap;
+  }
+  .masthead h1{
+    font-size:2rem; margin:0; letter-spacing:0.3px; font-weight:700;
+  }
+  .masthead .sub{
+    font-family: -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+    color:var(--ink-soft); font-size:0.8rem; margin-top:4px;
+  }
+  .masthead .date{
+    font-family: -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+    font-size:0.78rem; color:var(--ink-soft); text-align:right;
+  }
+
+  /* Stat strip */
+  .stats{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:1px;
+    background:var(--ink); border:1px solid var(--ink);
+    margin-bottom:26px;
+  }
+  .stat{
+    background:var(--white); padding:14px 16px;
+    font-family: -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+  }
+  .stat .num{font-size:1.5rem; font-weight:700; font-family:Georgia,serif; color:var(--green-deep);}
+  .stat .lbl{font-size:0.7rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--ink-soft); margin-top:2px;}
+  .stat.warn .num{color:var(--red);}
+
+  /* Toolbar */
+  .toolbar{
+    display:flex; gap:10px; align-items:center; margin-bottom:14px; flex-wrap:wrap;
+    font-family: -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+  }
+  .search-box{
+    flex:1 1 220px; display:flex; align-items:stretch; gap:0;
+  }
+  .search-box input[type=text]{
+    flex:1; padding:9px 12px; border:1px solid var(--rule); border-right:none;
+    background:var(--white); font-size:0.9rem; border-radius:2px 0 0 2px;
+    font-family: -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+  }
+  .icon-search-btn{
+    display:flex; align-items:center; justify-content:center;
+    width:38px; flex-shrink:0;
+    background:#EAF2FB; border:1px solid var(--rule); border-left:1px solid #BFD6EC;
+    border-radius:0 2px 2px 0; cursor:pointer;
+  }
+  .icon-search-btn:hover{background:#DCEAF9;}
+  .icon-search-btn svg{width:16px; height:16px;}
+
+  select, input[type=text], input[type=number], input[type=date]{
+    padding:9px 10px; border:1px solid var(--rule); background:var(--white);
+    font-size:0.85rem; border-radius:2px; color:var(--ink);
+    font-family: -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+  }
+  .btn{
+    border:1px solid var(--ink); background:var(--ink); color:var(--paper);
+    padding:9px 16px; font-size:0.85rem; cursor:pointer; border-radius:2px;
+    font-family: -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+    transition: transform .08s ease;
+  }
+  .btn:hover{transform:translateY(-1px);}
+  .btn.in{background:var(--green); border-color:var(--green);}
+  .btn.out{background:var(--red); border-color:var(--red);}
+  .btn.ghost{background:transparent; color:var(--ink); border:1px solid var(--rule);}
+
+  /* Table */
+  .ledger-wrap{border:1px solid var(--ink); background:var(--white);}
+  table{width:100%; border-collapse:collapse; font-size:0.86rem;}
+  thead th{
+    text-align:left; padding:9px 12px; background:var(--green-deep); color:var(--paper);
+    font-family: -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+    font-weight:600; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.05em;
+    position:sticky; top:0;
+  }
+  tbody td{padding:8px 12px; border-bottom:1px solid var(--paper-dim); vertical-align:middle;}
+  tbody tr:hover{background:var(--paper-dim);}
+  .code{font-family: 'Courier New', monospace; font-size:0.78rem; color:var(--ink-soft);}
+  .qty-low{color:var(--red); font-weight:700;}
+  .rowbtns{display:flex; gap:6px;}
+  .rowbtns button{
+    font-family: -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+    border:none; cursor:pointer; padding:5px 9px; font-size:0.72rem; border-radius:2px; color:#fff;
+  }
+  .rowbtns .in{background:var(--green);}
+  .rowbtns .out{background:var(--red);}
+  .cat-tag{
+    font-family: -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+    font-size:0.68rem; color:var(--ink-soft);
+  }
+  .empty-row td{padding:30px; text-align:center; color:var(--ink-soft); font-style:italic;}
+  .table-scroll{max-height:560px; overflow:auto;}
+
+  /* Modal */
+  .overlay{
+    position:fixed; inset:0; background:rgba(32,38,31,0.55);
+    display:none; align-items:center; justify-content:center; z-index:50;
+    padding:20px;
+  }
+  .overlay.open{display:flex;}
+  .modal{
+    background:var(--paper); border:2px solid var(--ink); max-width:420px; width:100%;
+    padding:22px; border-radius:2px; position:relative;
+    font-family: -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+  }
+  .modal h2{font-family:Georgia,serif; margin:0 0 4px; font-size:1.25rem;}
+  .modal .item-name{color:var(--ink-soft); font-size:0.85rem; margin-bottom:16px;}
+  .modal label{display:block; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--ink-soft); margin-bottom:5px; margin-top:12px;}
+  .modal input, .modal textarea{width:100%; padding:9px 10px; border:1px solid var(--rule); background:var(--white); font-size:0.9rem; border-radius:2px; font-family:inherit;}
+  .modal-actions{display:flex; gap:10px; margin-top:20px;}
+  .modal-actions .btn{flex:1; text-align:center;}
+  .close-x{position:absolute; top:14px; right:16px; background:none; border:none; font-size:1.3rem; cursor:pointer; color:var(--ink-soft);}
+  .modal-err{color:var(--red); font-size:0.78rem; margin-top:8px; display:none;}
+
+  /* Tabs */
+  .tabs{display:flex; gap:2px; margin-bottom:18px; flex-wrap:wrap; font-family: -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;}
+  .tab{
+    padding:9px 18px; background:var(--paper-dim); border:1px solid var(--rule); cursor:pointer;
+    font-size:0.85rem; color:var(--ink-soft); border-bottom:none;
+  }
+  .tab.active{background:var(--white); color:var(--ink); font-weight:700; border-color:var(--ink);}
+
+  .section{display:none;}
+  .section.active{display:block;}
+
+  /* History */
+  .hist-item{
+    display:flex; justify-content:space-between; gap:14px; padding:12px 14px;
+    border-bottom:1px solid var(--paper-dim); background:var(--white);
+    font-family: -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif; font-size:0.85rem;
+  }
+  .hist-item:last-child{border-bottom:none;}
+  .hist-badge{
+    font-size:0.68rem; padding:3px 8px; border-radius:10px; color:#fff; text-transform:uppercase;
+    letter-spacing:0.04em; height:fit-content;
+  }
+  .hist-badge.in{background:var(--green);}
+  .hist-badge.out{background:var(--red);}
+  .hist-meta{color:var(--ink-soft); font-size:0.75rem; margin-top:2px;}
+  .hist-right{text-align:right; white-space:nowrap; color:var(--ink-soft); font-size:0.78rem;}
+
+  .footer-note{
+    margin-top:26px; font-family: -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+    font-size:0.75rem; color:var(--ink-soft); text-align:center;
+  }
+
+  /* Store Issue */
+  .si-card{background:var(--white); border:1px solid var(--ink); padding:16px 18px; margin-bottom:16px;}
+  .si-header{display:flex; gap:22px; flex-wrap:wrap; align-items:flex-end; margin-bottom:14px; font-family: -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;}
+  .si-field{display:flex; flex-direction:column; gap:4px;}
+  .si-field label{color:var(--ink-soft); font-size:0.68rem; text-transform:uppercase; letter-spacing:.05em; font-weight:600;}
+  .si-field input, .si-field select{padding:7px 9px; border:1px solid var(--rule); border-radius:2px; font-size:0.85rem; min-width:170px; background:var(--white); font-family:inherit;}
+  .si-field input[readonly]{background:var(--paper-dim); color:var(--ink-soft);}
+  .si-status{font-weight:700; font-size:0.85rem; padding:6px 4px;}
+  .si-status.pending{color:var(--red);}
+  .si-status.saved{color:var(--green);}
+  .si-status.forwarded{color:var(--gold);}
+  .action-icons{display:flex; gap:26px; flex-wrap:wrap; border-top:1px solid var(--paper-dim); padding-top:14px;}
+  .action-icon-btn{
+    display:flex; flex-direction:column; align-items:center; gap:3px; cursor:pointer;
+    background:none; border:none; font-size:0.68rem; color:var(--ink-soft);
+    font-family: -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+  }
+  .action-icon-btn:hover{color:var(--ink);}
+  .action-icon-btn .ico{font-size:1.35rem; line-height:1;}
+  .si-table-wrap{overflow-x:auto;}
+  table.si-table{min-width:1250px;}
+  .si-table td{padding:4px 5px;}
+  .si-table input{
+    width:100%; padding:6px 7px; border:1px solid var(--rule); border-radius:2px;
+    font-size:0.8rem; font-family: -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+  }
+  .si-table input[readonly]{background:var(--paper-dim); color:var(--ink-soft);}
+  .si-remove-btn{background:var(--red); color:#fff; border:none; border-radius:2px; padding:5px 9px; cursor:pointer; font-size:0.75rem;}
+  .si-addrow{margin-top:10px;}
+  .si-grand{
+    text-align:right; margin-top:12px; font-family: -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+    font-size:0.95rem; color:var(--ink);
+  }
+
+  .toast{
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--ink); color:var(--paper); padding:11px 20px; border-radius:3px;
+    font-family: -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif; font-size:0.85rem;
+    opacity:0; transition:all .25s ease; z-index:100; pointer-events:none;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  @media print{
+    body{background:#fff;}
+    .toolbar, .tabs, .rowbtns, .footer-note, .overlay, .toast, th:last-child, td:last-child, .action-icons, #siListPanel, .noprint{display:none !important;}
+    .app{max-width:100%; padding:0;}
+    .ledger-wrap{border:none;}
+    .table-scroll{max-height:none; overflow:visible;}
+    thead th{position:static; background:#eee !important; color:#000 !important;}
+    .stats{border-color:#000;}
+    .stat{background:#fff;}
+    tbody tr:hover{background:none;}
+    .masthead{border-bottom:2px solid #000;}
+  }
+
+  .hist-badge.mid{background:var(--gold);}
+  .modal{max-height:92vh;overflow:auto;}
+  .modal h2{margin-bottom:10px;}
+  .modal select{width:100%;padding:9px 10px;border:1px solid var(--rule);background:var(--white);font-size:0.9rem;border-radius:2px;}
+  .toolbar input[type=text]{flex:1 1 200px;}
+  .note{font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;font-size:0.85rem;color:var(--ink-soft);margin:0 0 14px;}
+  h3.sec{font-family:Georgia,serif;margin:26px 0 10px;}
+  @media(max-width:640px){.stats{grid-template-columns:repeat(2,1fr);}}
+  .pill{padding:8px 14px;background:var(--paper-dim);border:1px solid var(--rule);cursor:pointer;font-size:0.82rem;color:var(--ink-soft);border-radius:14px;}
+  .pill.active{background:var(--green);color:#fff;border-color:var(--green);}
+  #dTypes{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="masthead">
+    <div>
+      <h1>Cornerstone School Manager</h1>
+      <div class="sub">Global Campus &middot; Students &middot; Library &middot; Book Notes &middot; Stock</div>
+    </div>
+    <div class="date" id="todayDate"></div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="num" id="statItems">0</div><div class="lbl">Items tracked</div></div>
+    <div class="stat"><div class="num" id="statUnits">0</div><div class="lbl">Total units on hand</div></div>
+    <div class="stat"><div class="num" id="statValue">Rs. 0</div><div class="lbl">Closing stock value</div></div>
+    <div class="stat warn"><div class="num" id="statLow">0</div><div class="lbl">Low stock (&le; 5 units)</div></div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" data-section="ledger">Stock Ledger</div>
+    <div class="tab" data-section="issue">Store Issue</div>
+    <div class="tab" data-section="history">Transaction History</div>
+    <div class="tab" data-section="students">Students</div>
+    <div class="tab" data-section="library">Library</div>
+    <div class="tab" data-section="notes">Book Notes</div>
+    <div class="tab" data-section="docs">Store Docs</div>
+    <div class="tab" data-section="ssale">Student Sale</div>
+    <div class="tab" data-section="reports">Reports</div>
+    <div class="tab" data-section="cons">Cons. Setup</div>
+    <div class="tab" data-section="backup">Backup</div>
+  </div>
+
+  <div class="section active" id="section-ledger">
+    <div class="toolbar">
+      <div class="search-box">
+        <input type="text" id="search" placeholder="Search by item name or code&hellip;">
+        <button class="icon-search-btn" id="searchBtn" title="Search" type="button">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10.5" cy="10.5" r="6.5" stroke="#2E6DA4" stroke-width="2"/><line x1="15.4" y1="15.4" x2="21" y2="21" stroke="#2E6DA4" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <select id="storeFilter"><option value="">All stores</option></select>
+      <select id="catFilter"><option value="">All categories</option></select>
+      <button class="btn" id="addItemBtn">+ Add Item</button>
+      <button class="btn ghost" id="printBtn">Print</button>
+      <button class="btn ghost" id="resetBtn" title="Restore original balances">Reset to report</button>
+    </div>
+
+    <div class="ledger-wrap">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Code</th><th>Item</th><th>Category</th><th>Unit</th><th>Balance</th><th>Avg Rate</th><th>Value</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="ledgerBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="section-issue">
+    <div class="si-card">
+      <div class="si-header">
+        <div class="si-field"><label>Department</label><input type="text" id="siDept" value="Global Campus"></div>
+        <div class="si-field"><label>Issued To (Person)</label><input type="text" id="siTo" list="siToList" placeholder="Name of person / teacher"></div><datalist id="siToList"></datalist>
+        <div class="si-field"><label>Store</label><select id="siStore"></select></div>
+        <div class="si-field"><label>SI Date</label><input type="date" id="siDate"></div>
+        <div class="si-field"><label>SI No</label><input type="text" id="siNo" readonly></div>
+        <div class="si-status pending" id="siStatus">Pending</div>
+      </div>
+      <div class="action-icons">
+        <button class="action-icon-btn" id="siRefresh" type="button"><span class="ico">🔄</span>Refresh</button>
+        <button class="action-icon-btn" id="siSave" type="button"><span class="ico">💾</span>Save</button>
+        <button class="action-icon-btn" id="siList" type="button"><span class="ico">📋</span>List</button>
+        <button class="action-icon-btn" id="siForward" type="button"><span class="ico">➡️</span>Forward to Store</button>
+        <button class="action-icon-btn" id="siPrint" type="button"><span class="ico">🖨️</span>Print</button>
+        <button class="action-icon-btn" id="siCancel" type="button"><span class="ico">❌</span>Cancel</button>
+      </div>
+    </div>
+
+    <div class="ledger-wrap si-table-wrap">
+      <div class="table-scroll">
+        <table class="si-table">
+          <thead>
+            <tr>
+              <th>Code</th><th>Description</th><th>Unit</th><th>Avai. Qty</th><th>Iss. Qty</th>
+              <th>Iss. Rate</th><th>Total</th><th>Purpose</th><th>Cost ID</th><th>Cost Desc.</th><th>All. ID</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="siBody"></tbody>
+        </table>
+      </div>
+    </div>
+    <button class="btn ghost si-addrow" id="siAddRow" type="button">+ Add Row</button>
+    <div class="si-grand">Grand Total: <strong id="siGrandTotal">Rs. 0</strong></div>
+
+    <div id="siListPanel" style="display:none; margin-top:24px;">
+      <h3 style="font-family:Georgia,serif;">Saved Store Issues</h3>
+      <div class="ledger-wrap" id="siListBody"></div>
+    </div>
+    <datalist id="itemCodeList"></datalist><datalist id="itemNameList"></datalist>
+  </div>
+
+  <div class="section" id="section-history">
+    <div id="historyList"></div>
+  </div>
+
+  
+  <div class="section" id="section-students">
+    <div class="stats"><div class="stat"><div class="num" id="stT">0</div><div class="lbl">Students</div></div><div class="stat"><div class="num" id="stM">0</div><div class="lbl">Boys</div></div><div class="stat"><div class="num" id="stF">0</div><div class="lbl">Girls</div></div><div class="stat warn"><div class="num" id="stU">0</div><div class="lbl">Fee pending</div></div></div>
+    <div class="toolbar">
+      <input type="text" id="stSearch" placeholder="Search name, reg no, father, phone&hellip;">
+      <select id="stClass"></select>
+      <button class="btn" id="stAdd" type="button">+ Add Student</button>
+      <button class="btn ghost" id="stCsv" type="button">Export CSV</button>
+      <button class="btn ghost" id="stSeed" type="button">Import Class List (508)</button>
+      <button class="btn ghost" onclick="window.print()" type="button">Print</button>
+    </div>
+    <div class="ledger-wrap"><div class="table-scroll"><table>
+      <thead><tr><th>Reg No</th><th>Name</th><th>Father</th><th>Class</th><th>Gender</th><th>DOB</th><th>Phone</th><th>Fee</th><th>Books out</th><th>Actions</th></tr></thead>
+      <tbody id="stBody"></tbody></table></div></div>
+  </div>
+
+  <div class="section" id="section-library">
+    <div class="stats"><div class="stat"><div class="num" id="lbT">0</div><div class="lbl">Book titles</div></div><div class="stat"><div class="num" id="lbC">0</div><div class="lbl">Total copies</div></div><div class="stat"><div class="num" id="lbI">0</div><div class="lbl">Currently issued</div></div><div class="stat warn"><div class="num" id="lbO">0</div><div class="lbl">Overdue</div></div></div>
+    <div class="toolbar">
+      <input type="text" id="bkSearch" placeholder="Search title, author, accession no&hellip;">
+      <button class="btn" id="bkAdd" type="button">+ Add Book</button>
+      <button class="btn in" id="bkIssue" type="button">Issue Book</button>
+      <button class="btn ghost" onclick="window.print()" type="button">Print</button>
+    </div>
+    <div class="ledger-wrap"><div class="table-scroll"><table>
+      <thead><tr><th>Acc No</th><th>Title</th><th>Author</th><th>Category</th><th>Shelf</th><th>Copies</th><th>Available</th><th>Actions</th></tr></thead>
+      <tbody id="bkBody"></tbody></table></div></div>
+    <h3 class="sec">Issue &amp; Return Record</h3>
+    <div class="ledger-wrap"><div class="table-scroll"><table>
+      <thead><tr><th>Book</th><th>Student</th><th>Issued</th><th>Due</th><th>Status</th><th>Return</th></tr></thead>
+      <tbody id="lnBody"></tbody></table></div></div>
+  </div>
+
+  <div class="section" id="section-notes">
+    <div class="toolbar">
+      <input type="text" id="ntSearch" placeholder="Search notes or book title&hellip;">
+      <button class="btn" id="ntAdd" type="button">+ Add Note</button>
+    </div>
+    <div class="ledger-wrap" id="ntList"></div>
+  </div>
+
+  <div class="section" id="section-backup">
+    <p class="note">All data (students, books, notes, stock) is stored in this browser only. Download a backup regularly, and restore it on another computer or after clearing browser data.</p>
+    <div class="toolbar">
+      <button class="btn" id="bxExport" type="button">Download Backup</button>
+      <label class="btn ghost" style="cursor:pointer">Restore Backup<input type="file" id="bxImport" accept=".json" hidden></label>
+    </div>
+  </div>
+
+  
+  <div class="section" id="section-docs">
+    <div id="dTypes"></div>
+    <div class="toolbar">
+      <select id="dStatus"></select>
+      <input type="text" id="dSearch" placeholder="Search no, party or item&hellip;">
+      <button class="btn" id="dNew" type="button">+ New</button>
+      <button class="btn ghost" id="dSale" type="button">Sale Rate</button>
+    </div>
+    <div class="ledger-wrap"><div class="table-scroll"><table>
+      <thead><tr><th>No</th><th>Date</th><th id="dPartyH">Party</th><th>Items</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody id="dBody"></tbody></table></div></div>
+  </div>
+
+  <div class="section" id="section-reports">
+    <div class="toolbar">
+      <select id="rType"><option value="items">Items</option><option value="status">Stock Status</option><option value="ledger">Item Ledger</option><option value="consumption">Consumption</option><option value="issues">Store Issue</option><option value="issuedto">Issued To - Details (who got what)</option><option value="issuedsum">Issued To - Summary</option><option value="ssale">Student Sale</option><option value="grn">GRN</option><option value="sales">Store Sale</option></select>
+      <select id="rCat"></select>
+      <input type="text" id="rItem" list="itemCodeList" placeholder="Item code (Item Ledger)">
+      <input type="text" id="rWho" list="siToList" placeholder="Issued To / Dept (optional)">
+      <span class="note" style="margin:0">From</span><input type="date" id="rFrom">
+      <span class="note" style="margin:0">To</span><input type="date" id="rTo">
+      <button class="btn" id="rRun" type="button">Run</button>
+      <button class="btn ghost" id="rPrint" type="button">Print</button>
+      <button class="btn ghost" id="rCsv" type="button">CSV</button>
+    </div>
+    <div id="rOut"></div>
+  </div>
+
+  <div class="section" id="section-cons">
+    <div class="toolbar"><button class="btn" id="cAdd" type="button">+ Add Consumption Setup</button></div>
+    <div class="ledger-wrap"><div class="table-scroll"><table>
+      <thead><tr><th>Cost Code</th><th>Item Category</th><th>WH Code</th><th>Branch Code</th><th>Nominal Account</th><th>Sub Account</th><th>Acc. Cost Center</th><th>Date</th><th>Actions</th></tr></thead>
+      <tbody id="cBody"></tbody></table></div></div>
+  </div>
+
+  
+  <div class="section" id="section-ssale">
+    <div class="toolbar">
+      <button class="btn in" id="ssSave" type="button">Save</button>
+      <button class="btn ghost" id="ssRefresh" type="button">Refresh / New</button>
+      <button class="btn ghost" id="ssList" type="button">List</button>
+      <button class="btn ghost" id="ssPrint" type="button">Print</button>
+    </div>
+    <div id="ssListPanel" style="display:none">
+      <div class="toolbar"><input type="text" id="ssSearch" placeholder="Search SS no, student ID or name&hellip;"></div>
+      <div class="ledger-wrap"><div class="table-scroll"><table>
+        <thead><tr><th>SS No</th><th>Date</th><th>Student ID</th><th>Student Name</th><th>Class</th><th>Charge</th><th>Total</th><th>Actions</th></tr></thead>
+        <tbody id="ssListBody"></tbody></table></div></div>
+    </div>
+    <div class="si-header">
+      <div class="si-field"><label>Warehouse</label><input type="text" id="ssWh" value="Global Campus" readonly></div>
+      <div class="si-field"><label>Department</label><input type="text" id="ssDept" value="Global Campus" readonly></div>
+      <div class="si-field"><label>Dept B&amp;S / Dept HPT</label><div style="padding-top:8px"><input type="checkbox" id="ssBS" style="width:auto"> B&amp;S &nbsp; <input type="checkbox" id="ssHPT" style="width:auto"> HPT</div></div>
+      <div class="si-field"><label>SS Date</label><input type="date" id="ssDate"></div>
+      <div class="si-field"><label>SS No</label><input type="text" id="ssNo" value="(auto)" readonly></div>
+      <div class="si-field"><label>Allocation Number</label><input type="text" id="ssAlloc"></div>
+      <div class="si-field"><label>Student ID (Reg No) <button type="button" class="btn ghost" id="ssChk" style="padding:1px 8px">&#10003;</button></label><input type="text" id="ssSid"></div>
+      <div class="si-field"><label>Student Name</label><input type="text" id="ssName" readonly></div>
+      <div class="si-field"><label>Father</label><input type="text" id="ssFather" readonly></div>
+      <div class="si-field"><label>House</label><input type="text" id="ssHouse" readonly></div>
+      <div class="si-field"><label>Status</label><input type="text" id="ssStatus" readonly></div>
+      <div class="si-field"><label>Class</label><input type="text" id="ssClass" readonly></div>
+      <div class="si-field"><label>Charge</label><div style="padding-top:8px"><input type="checkbox" id="ssCharge" style="width:auto" checked></div></div>
+    </div>
+    <div class="si-header" style="margin-top:12px">
+      <div class="si-field"><label>Item Code</label><input type="text" id="ssCode" list="itemCodeList"></div>
+      <div class="si-field"><label>Description</label><input type="text" id="ssDesc" list="itemNameList"></div>
+      <div class="si-field"><label>Unit</label><input type="text" id="ssUnit"></div>
+      <div class="si-field"><label>In Hand</label><input type="text" id="ssAv" readonly></div>
+      <div class="si-field"><label>Quantity</label><input type="number" step="0.01" id="ssQty"></div>
+      <div class="si-field"><label>Avg. Rate</label><input type="text" id="ssAvg" readonly></div>
+      <div class="si-field"><label>Rate</label><input type="number" step="0.01" id="ssRate"></div>
+      <div class="si-field"><label>Discount %</label><input type="number" step="0.01" id="ssDisc"></div>
+      <div class="si-field"><label>GST %</label><input type="number" step="0.01" id="ssGst"></div>
+      <div class="si-field"><label>Amount</label><input type="text" id="ssAmt" readonly></div>
+      <div class="si-field"><label>&nbsp;</label><button type="button" class="btn in" id="ssAdd">&#10003; Add</button></div>
+    </div>
+    <div class="ledger-wrap"><div class="table-scroll"><table>
+      <thead><tr><th>Sr No</th><th>Item Code</th><th>Description</th><th>Unit</th><th>Quantity</th><th>Avg. Rate</th><th>Rate</th><th>Discount%</th><th>GST%</th><th>Amount</th><th></th></tr></thead>
+      <tbody id="ssRows"></tbody></table></div></div>
+    <div class="si-header" style="margin-top:12px">
+      <div class="si-field" style="flex:2 1 320px"><label>Remarks 1</label><input type="text" id="ssR1"><label>Remarks 2</label><input type="text" id="ssR2"><label>Remarks 3</label><input type="text" id="ssR3"></div>
+      <div class="si-field" style="color:#c00;text-align:right;font-family:-apple-system,'Segoe UI',Arial,sans-serif;font-size:.85rem;line-height:1.8">
+        Item Value : <b id="ssIV">0</b><br>Discount : <b id="ssDS">0</b><br>GST : <b id="ssGS">0</b><br>Total Amount : <b id="ssTT">0</b></div>
+    </div>
+    <h3 class="sec">COMMENTS</h3>
+    <div class="toolbar"><textarea id="ssCm" rows="2" style="flex:1 1 300px;padding:8px;border:1px solid var(--rule)"></textarea><button class="btn ghost" id="ssCmAdd" type="button">Save Comment</button></div>
+    <div class="ledger-wrap"><div class="table-scroll"><table>
+      <thead><tr><th>Date and Time</th><th>User Name</th><th>Level</th><th>Comments</th></tr></thead><tbody id="ssCmBody"></tbody></table></div></div>
+    <p class="note" id="ssMeta" style="margin-top:12px;color:green">Created By: -<br>Last Updated: -</p>
+  </div>
+
+  <div class="footer-note">Balances shown reflect opening stock report plus transactions recorded. Data is saved automatically in this browser. Use the Backup tab to keep a copy.</div>
+</div>
+
+<!-- Modal -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <button class="close-x" id="closeModal">&times;</button>
+    <h2 id="modalTitle">Stock In</h2>
+    <div class="item-name" id="modalItemName"></div>
+    <label>Quantity</label>
+    <input type="number" id="modalQty" min="0.01" step="0.01" placeholder="e.g. 10">
+    <label>Reason / Reference (optional)</label>
+    <input type="text" id="modalReason" placeholder="e.g. Purchase from ABC">
+    <div class="modal-err" id="modalErr">Enter a valid quantity.</div>
+    <div class="modal-actions">
+      <button class="btn ghost" id="cancelModal">Cancel</button>
+      <button class="btn" id="confirmModal">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Item Modal -->
+<div class="overlay" id="addOverlay">
+  <div class="modal">
+    <button class="close-x" id="closeAddModal">&times;</button>
+    <h2>Add New Item</h2>
+    <div class="item-name">Create a new stock ledger entry.</div>
+    <label>Item name</label>
+    <input type="text" id="newName" placeholder="e.g. Whiteboard Marker">
+    <label>Item code</label>
+    <div class="search-box" style="margin-bottom:0;">
+      <input type="text" id="newCode" placeholder="e.g. 0999001">
+      <button class="icon-search-btn" id="lookupCodeBtn" title="Look up code" type="button">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10.5" cy="10.5" r="6.5" stroke="#2E6DA4" stroke-width="2"/><line x1="15.4" y1="15.4" x2="21" y2="21" stroke="#2E6DA4" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <label>Unit</label>
+    <input type="text" id="newUnit" placeholder="e.g. NO, PKT, SET">
+    <label>Category</label>
+    <input type="text" id="newCategory" placeholder="Category" list="catList">
+    <datalist id="catList"></datalist>
+    <label>Store</label>
+    <input type="text" id="newStore" placeholder="Store name" list="storeList">
+    <datalist id="storeList"></datalist>
+    <label>Opening quantity</label>
+    <input type="number" id="newQty" min="0" step="0.01" placeholder="20">
+    <label>Average rate</label>
+    <input type="number" id="newRate" min="0" step="0.01" placeholder="45.00">
+    <div id="uniWrap" style="display:none"><label>Uniform size</label><input type="text" id="newSize" placeholder="e.g. 26, 28, S, M, L" list="sizeList"><datalist id="sizeList"><option value="XS"><option value="S"><option value="M"><option value="L"><option value="XL"><option value="24"><option value="26"><option value="28"><option value="30"><option value="32"><option value="34"><option value="36"></datalist></div>
+    <div id="nbWrap" style="display:none"><label>Notebook type</label><input type="text" id="newNbType" placeholder="e.g. Ruled, Plain, Drawing, Graph" list="nbTypeList"><datalist id="nbTypeList"><option value="Ruled"><option value="Plain"><option value="Drawing"><option value="Graph"><option value="Urdu Ruled"></datalist><label>Pages</label><input type="number" id="newNbPages" min="1" placeholder="e.g. 100, 200"></div>
+    <div id="bookWrap" style="display:none"><label>Book name</label><input type="text" id="newBookName" placeholder="e.g. English Grammar Class 5"><label>Book cover</label><input type="file" id="newCover" accept="image/*"><img id="newCoverPrev" alt="" style="display:none;max-height:90px;margin-top:6px"></div>
+    <div class="modal-err" id="addErr">Fill in all required fields.</div>
+    <div class="modal-actions">
+      <button class="btn ghost" id="cancelAddModal">Cancel</button>
+      <button class="btn in" id="confirmAddModal">Add Item</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="fOverlay"><div class="modal"><button class="close-x" id="fClose" type="button">&times;</button><h2 id="fTitle"></h2><div id="fBody"></div><div class="modal-err" id="fErr"></div><div class="modal-actions"><button class="btn ghost" id="fCancel" type="button">Cancel</button><button class="btn in" id="fSave" type="button">Save</button></div></div></div>
+<div class="overlay" id="dOverlay"><div class="modal" style="max-width:900px"><button class="close-x" id="dClose" type="button">&times;</button><h2 id="dTitle"></h2>
+  <div class="si-header">
+    <div class="si-field"><label>Date</label><input type="date" id="dDate"></div>
+    <div class="si-field"><label>No</label><input type="text" id="dNo" readonly></div>
+    <div class="si-field"><label id="dPartyL">Party</label><input type="text" id="dParty" list="dPartyList"></div>
+    <div class="si-field"><label>Remarks</label><input type="text" id="dRem"></div>
+    <datalist id="dPartyList"></datalist>
+  </div>
+  <div class="si-table-wrap"><table class="si-table" style="min-width:860px"><thead><tr><th>Code</th><th>Description</th><th>Unit</th><th>In Hand</th><th>Qty</th><th>Rate</th><th>Total</th><th></th></tr></thead><tbody id="dRows"></tbody></table></div>
+  <button class="btn ghost si-addrow" id="dAddRow" type="button">+ Add Row</button>
+  <div class="si-grand">Total: <strong id="dTotal">Rs. 0</strong></div>
+  <div class="modal-err" id="dErr"></div>
+  <div class="modal-actions"><button class="btn ghost" id="dCancel" type="button">Cancel</button><button class="btn in" id="dSave" type="button">Save</button></div>
+</div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const ERPCATS = ['01 - Stationery Items','02 - General Items','03 - Sports Items','04 - Crockery Items','05 - Uniform','06 - Food Items','07 - Cleaning Items','Notebooks','22 - Furniture & Fixture','23 - Computers, Networking, Printer','24 - Electric Equipments','25 - Other Assets','26 - Laboratory Equipments','27 - Library Books','28 - Security','29 - Kitchen Items','30 - Infirmary Items','31 - Horticulture Items','32 - Software & Systems','33 - Course Books (1 Years)'];
+const ITEMS = [{"code":"0101002","name":"Chart Paper (White)","unit":"NO","category":"Stationery Items - Stationery Items","store":"Fixed Assets Purchase Store","qty":10.0,"rate":45.0,"value":450.0,"id":1},{"code":"01010028","name":"Sticko","unit":"NO","category":"Stationery Items - Stationery Items","store":"Fixed Assets Purchase Store","qty":7.0,"rate":580.0,"value":4060.0,"id":2}];
+
+let state = { items: null, tx: [], issues: [], siCounter: 1 };
+let editSi = null; let modalMode = null, modalItemId = null, siRows = [];
+
+function fmtNum(n, decimals){
+  decimals = decimals === undefined ? 2 : decimals;
+  let v = Number(n);
+  if(Object.is(v, -0)) v = 0;
+  return v.toLocaleString('en-US', {minimumFractionDigits: decimals, maximumFractionDigits: decimals});
+}
+function fmtMoney(n){ return 'Rs. ' + Math.round(n).toLocaleString('en-US'); }
+
+function loadState(){
+  try{
+    const items = localStorage.getItem('cornerstone_ledger_items_v1');
+    const tx = localStorage.getItem('cornerstone_ledger_tx_v1');
+    const issues = localStorage.getItem('cornerstone_ledger_issues_v1');
+    const siCounter = localStorage.getItem('cornerstone_ledger_sicounter_v1');
+    state.items = items ? JSON.parse(items) : JSON.parse(JSON.stringify(ITEMS));
+    state.tx = tx ? JSON.parse(tx) : [];
+    state.issues = issues ? JSON.parse(issues) : [];
+    state.siCounter = siCounter ? JSON.parse(siCounter) : 1;
+  }catch(e){
+    state.items = JSON.parse(JSON.stringify(ITEMS));
+  }
+}
+
+function saveState(){
+  try{
+    localStorage.setItem('cornerstone_ledger_items_v1', JSON.stringify(state.items));
+    localStorage.setItem('cornerstone_ledger_tx_v1', JSON.stringify(state.tx));
+    localStorage.setItem('cornerstone_ledger_issues_v1', JSON.stringify(state.issues));
+    localStorage.setItem('cornerstone_ledger_sicounter_v1', JSON.stringify(state.siCounter));
+  }catch(e){ console.error('Save failed', e); }
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(()=> t.classList.remove('show'), 2400);
+}
+
+function populateFilters(){
+  const stores = [...new Set(state.items.map(i=>i.store))].sort();
+  const cats = [...new Set(state.items.map(i=>i.category))].sort();
+  document.getElementById('storeFilter').innerHTML = '<option value="">All stores</option>' + stores.map(s=>`<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('');
+  document.getElementById('catFilter').innerHTML = '<option value="">All categories</option>' + cats.map(c=>`<option value="${escapeHtml(c)}">${escapeHtml(shortCat(c))}</option>`).join('');
+
+  document.getElementById('catList').innerHTML = [...new Set([...cats,...ERPCATS])].map(c=>`<option value="${escapeHtml(c)}">`).join('');
+  document.getElementById('storeList').innerHTML = stores.map(s=>`<option value="${escapeHtml(s)}">`).join('');
+
+  const siStoreSel = document.getElementById('siStore');
+  const prevVal = siStoreSel.value;
+  siStoreSel.innerHTML = stores.map(s=>`<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('');
+  if(stores.includes(prevVal)) siStoreSel.value = prevVal;
+
+  document.getElementById('itemNameList').innerHTML = state.items.map(i=>`<option value="${escapeHtml(i.name)}">${escapeHtml(i.code)}</option>`).join('');
+  document.getElementById('itemCodeList').innerHTML = state.items.map(i=>`<option value="${escapeHtml(i.code)}">${escapeHtml(i.name)}</option>`).join('');
+}
+
+function shortCat(c){ const parts = c.split(' - '); return parts.length>1 ? parts[1] : c; }
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+function renderStats(){
+  document.getElementById('statItems').textContent = state.items.length;
+  document.getElementById('statUnits').textContent = fmtNum(state.items.reduce((a,i)=>a+i.qty,0), 0);
+  document.getElementById('statValue').textContent = fmtMoney(state.items.reduce((a,i)=>a+i.qty*i.rate,0));
+  document.getElementById('statLow').textContent = state.items.filter(i=>i.qty<=5).length;
+}
+
+function renderLedger(){
+  const q = document.getElementById('search').value.trim().toLowerCase();
+  const storeF = document.getElementById('storeFilter').value;
+  const catF = document.getElementById('catFilter').value;
+  const body = document.getElementById('ledgerBody');
+
+  let rows = state.items.filter(i=>{
+    if(storeF && i.store !== storeF) return false;
+    if(catF && i.category !== catF) return false;
+    if(q && !(i.name.toLowerCase().includes(q) || i.code.toLowerCase().includes(q))) return false;
+    return true;
+  });
+  rows.sort((a,b)=> a.category.localeCompare(b.category) || a.name.localeCompare(b.name));
+
+  if(rows.length === 0){
+    body.innerHTML = '<tr class="empty-row"><td colspan="8">No items match this search.</td></tr>';
+    return;
+  }
+
+  body.innerHTML = rows.map(i=>{
+    const val = i.qty * i.rate;
+    const qtyClass = i.qty <= 5 ? 'qty-low' : '';
+    return `<tr>
+      <td data-label="Code"><span class="code">${escapeHtml(i.code)}</span></td>
+      <td data-label="Item">${i.cover?`<img src="${i.cover}" alt="" style="width:34px;height:44px;object-fit:cover;vertical-align:middle;margin-right:8px;border:1px solid var(--rule)">`:''}${escapeHtml(i.name)}</td>
+      <td data-label="Category"><span class="cat-tag">${escapeHtml(shortCat(i.category))}</span></td>
+      <td data-label="Unit">${escapeHtml(i.unit)}</td>
+      <td data-label="Balance" class="${qtyClass}">${fmtNum(i.qty)}</td>
+      <td data-label="Avg Rate">${fmtNum(i.rate)}</td>
+      <td data-label="Value">${fmtMoney(val)}</td>
+      <td data-label="Actions">
+        <div class="rowbtns">
+          <button class="in" data-act="in" data-id="${i.id}">Stock In</button>
+          <button class="out" data-act="out" data-id="${i.id}">Stock Out</button>
+          <button style="background:var(--ink)" data-act="edit" data-id="${i.id}">Edit</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function renderHistory(){
+  const list = document.getElementById('historyList');
+  if(state.tx.length === 0){
+    list.innerHTML = '<div class="hist-item" style="justify-content:center; color:var(--ink-soft); font-style:italic;">No stock movements recorded yet.</div>';
+    return;
+  }
+  list.innerHTML = [...state.tx].reverse().map(t=>{
+    const item = state.items.find(i=>i.id === t.itemId);
+    const name = item ? item.name : t.itemName;
+    return `<div class="hist-item">
+      <div>
+        <span class="hist-badge ${t.type}">${t.type === 'in' ? 'Stock In' : 'Stock Out'}</span>
+        <div style="margin-top:6px; font-weight:600;">${escapeHtml(name)}</div>
+        <div class="hist-meta">${escapeHtml(t.reason || 'No reference given')}</div>
+      </div>
+      <div class="hist-right">
+        <div style="font-weight:700; color:${t.type==='in' ? 'var(--green)' : 'var(--red)'}">${t.type==='in'?'+':'-'}${fmtNum(t.qty)}</div>
+        <div>${new Date(t.at).toLocaleString()}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderAll(){
+  renderStats();
+  renderLedger();
+  renderHistory();
+}
+
+function openModal(mode, itemId){
+  modalMode = mode; modalItemId = itemId;
+  const item = state.items.find(i=>i.id === itemId);
+  document.getElementById('modalTitle').textContent = mode === 'in' ? 'Stock In' : 'Stock Out';
+  document.getElementById('modalItemName').textContent = `${item.name} (${item.code}) — Balance: ${fmtNum(item.qty)} ${item.unit}`;
+  document.getElementById('modalQty').value = '';
+  document.getElementById('modalReason').value = '';
+  document.getElementById('modalErr').style.display = 'none';
+  document.getElementById('confirmModal').className = mode === 'in' ? 'btn in' : 'btn out';
+  document.getElementById('overlay').classList.add('open');
+  document.getElementById('modalQty').focus();
+}
+function closeModal(){ document.getElementById('overlay').classList.remove('open'); modalMode = null; modalItemId = null; }
+
+function confirmModalAction(){
+  const qty = parseFloat(document.getElementById('modalQty').value);
+  const err = document.getElementById('modalErr');
+  const item = state.items.find(i=>i.id === modalItemId);
+
+  if(!qty || qty <= 0 || isNaN(qty)){
+    err.textContent = 'Enter a valid quantity greater than 0.';
+    err.style.display = 'block';
+    return;
+  }
+  if(modalMode === 'out' && qty > item.qty){
+    err.textContent = `Cannot issue more than available balance (${fmtNum(item.qty)}).`;
+    err.style.display = 'block';
+    return;
+  }
+
+  if(modalMode === 'in') item.qty += qty;
+  else item.qty -= qty;
+
+  state.tx.push({
+    itemId: item.id, itemName: item.name, type: modalMode, qty: qty,
+    reason: document.getElementById('modalReason').value.trim(), at: Date.now()
+  });
+
+  saveState();
+  closeModal();
+  renderAll();
+  showToast(`${modalMode === 'in' ? 'Received' : 'Issued'} ${fmtNum(qty)} ${item.unit}`);
+}
+
+function resetToReport(){
+  if(!confirm('Restore original report balances?')) return;
+  state.items = JSON.parse(JSON.stringify(ITEMS));
+  state.tx = [];
+  saveState();
+  renderAll();
+  showToast('Ledger restored.');
+}
+
+function openAddModal(){
+  document.getElementById('newName').value = '';
+  document.getElementById('newCode').value = '';
+  document.getElementById('newUnit').value = '';
+  document.getElementById('newCategory').value = '';
+  document.getElementById('newStore').value = '';
+  document.getElementById('newQty').value = '';
+  document.getElementById('newRate').value = '';
+  document.getElementById('addErr').style.display = 'none';
+  document.getElementById('addOverlay').classList.add('open');
+}
+function closeAddModal(){ document.getElementById('addOverlay').classList.remove('open'); }
+
+function confirmAddItem(){
+  const name = document.getElementById('newName').value.trim();
+  const code = document.getElementById('newCode').value.trim();
+  const unit = document.getElementById('newUnit').value.trim();
+  const category = document.getElementById('newCategory').value.trim() || 'Uncategorized';
+  const store = document.getElementById('newStore').value.trim() || 'General and Stationery Store';
+  const qty = parseFloat(document.getElementById('newQty').value);
+  const rate = parseFloat(document.getElementById('newRate').value) || 0;
+  const err = document.getElementById('addErr');
+
+  if(!name || !code || !unit || isNaN(qty) || qty < 0){
+    err.textContent = 'Fill in all required fields.';
+    err.style.display = 'block';
+    return;
+  }
+  if(state.items.some(i => i.code.toLowerCase() === code.toLowerCase())){
+    err.textContent = 'Item code already exists.';
+    err.style.display = 'block';
+    return;
+  }
+
+  const newId = state.items.reduce((max,i)=>Math.max(max,i.id),0) + 1;
+  const isU = document.getElementById('uniWrap').style.display === 'block', isB = document.getElementById('bookWrap').style.display === 'block';
+  const size = document.getElementById('newSize').value.trim(), bookName = document.getElementById('newBookName').value.trim();
+  if(isU && !size){ err.textContent = 'Enter the uniform size.'; err.style.display = 'block'; return; }
+  if(isB && !bookName){ err.textContent = 'Enter the book name.'; err.style.display = 'block'; return; }
+  const isN = document.getElementById('nbWrap').style.display === 'block';
+  const nbType = document.getElementById('newNbType').value.trim(), nbPages = document.getElementById('newNbPages').value.trim();
+  const nbInfo = [nbPages ? nbPages + ' pages' : '', nbType].filter(Boolean).join(', ');
+  const finalName = isU ? `${name} (Size ${size})` : (isN && nbInfo) ? `${name} (${nbInfo})` : name;
+  state.items.push({ id:newId, code, name: finalName, unit, category, store, qty, rate, value: qty*rate, size: isU ? size : '', nbType: isN ? nbType : '', nbPages: isN ? nbPages : '', bookName: isB ? bookName : '', cover: isB ? (window._newCover || '') : '' });
+  state.tx.push({ itemId: newId, itemName: finalName, type:'in', qty:qty, reason: 'New item added', at: Date.now() });
+
+  saveState();
+  populateFilters();
+  closeAddModal();
+  renderAll();
+  showToast(`Added: ${name}`);
+}
+
+/* Store Issue */
+function todayISO(){
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function generateSiNo(){
+  const d = new Date();
+  return `SI${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}${String(state.siCounter).padStart(4,'0')}`;
+}
+function newBlankSiRow(){ return { code:'', name:'', unit:'', avail:0, issQty:0, issRate:0, total:0, purpose:'', costId:'', costDesc:'', allId:'' }; }
+function setSiStatus(s){
+  const el = document.getElementById('siStatus');
+  el.className = 'si-status ' + s;
+  el.textContent = s.charAt(0).toUpperCase() + s.slice(1);
+}
+function resetSiForm(genNewNumber){ editSi = null;
+  siRows = [newBlankSiRow()];
+  document.getElementById('siDate').value = todayISO();
+  if(genNewNumber) document.getElementById('siNo').value = generateSiNo();
+  setSiStatus('pending');
+  renderSiRows();
+}
+function updateSiGrandTotal(){
+  document.getElementById('siGrandTotal').textContent = fmtMoney(siRows.reduce((a,r)=>a + (r.total||0), 0));
+}
+function renderSiRows(){
+  document.getElementById('siBody').innerHTML = siRows.map((r, idx)=>`
+    <tr data-idx="${idx}">
+      <td><input type="text" class="si-code" list="itemCodeList" value="${escapeHtml(r.code)}" placeholder="Code"></td>
+      <td><input type="text" class="si-desc" list="itemNameList" value="${escapeHtml(r.name)}" placeholder="Auto or type description"></td>
+      <td><input type="text" class="si-unit" value="${escapeHtml(r.unit)}" placeholder="Unit"></td>
+      <td><input type="text" class="si-avail" value="${fmtNum(r.avail)}" readonly></td>
+      <td><input type="number" class="si-issqty" min="0" step="0.01" value="${r.issQty || ''}"></td>
+      <td><input type="number" class="si-issrate" min="0" step="0.0001" value="${r.issRate || ''}"></td>
+      <td><input type="text" class="si-total" value="${fmtNum(r.total)}" readonly></td>
+      <td><input type="text" class="si-purpose" value="${escapeHtml(r.purpose)}" placeholder="Purpose"></td>
+      <td><input type="text" class="si-costid" value="${escapeHtml(r.costId)}"></td>
+      <td><input type="text" class="si-costdesc" value="${escapeHtml(r.costDesc)}"></td>
+      <td><input type="text" class="si-allid" value="${escapeHtml(r.allId)}"></td>
+      <td>${siRows.length > 1 ? `<button type="button" class="si-remove-btn" data-idx="${idx}">&times;</button>` : ''}</td>
+    </tr>
+  `).join('');
+  updateSiGrandTotal();
+}
+
+function editSiByNo(no){
+  const d = state.issues.find(x => x.siNo === no); if(!d) return;
+  editSi = d;
+  document.getElementById('siNo').value = d.siNo;
+  document.getElementById('siDate').value = d.date;
+  document.getElementById('siDept').value = d.dept || '';
+  document.getElementById('siTo').value = d.to || '';
+  document.getElementById('siStore').value = d.store;
+  siRows = d.rows.map(r => { const it = state.items.find(i => i.code.toLowerCase() === String(r.code||'').toLowerCase()); return Object.assign({}, r, { avail: it ? it.qty + r.issQty : 0 }); });
+  siRows.push(newBlankSiRow());
+  setSiStatus('pending'); renderSiRows();
+  document.getElementById('siListPanel').style.display = 'none';
+  document.querySelector('.tab[data-section="issue"]').click();
+  showToast('Editing ' + no + '. Change what you need and press Save.');
+}
+function saveSi(){
+  const validRows = siRows.filter(r => (r.code || r.name) && r.issQty > 0);
+  if(validRows.length === 0){ showToast('Add valid items.'); return; }
+  for(const r of validRows){
+    const item = state.items.find(i => i.code.toLowerCase() === r.code.toLowerCase());
+    const back = (editSi && item) ? editSi.rows.filter(o => String(o.code||'').toLowerCase() === item.code.toLowerCase()).reduce((a,o)=>a+o.issQty,0) : 0;
+    if(item && r.issQty > item.qty + back){ showToast(`Only ${fmtNum(item.qty + back)} available for ${item.name}`); return; }
+  }
+  const siNo = document.getElementById('siNo').value;
+  if(editSi){
+    editSi.rows.forEach(o => { const it = state.items.find(i => i.code.toLowerCase() === String(o.code||'').toLowerCase()); if(it){ it.qty += o.issQty; state.tx.push({ itemId: it.id, itemName: it.name, type: 'in', qty: o.issQty, reason: `Edit of ${editSi.siNo} (old issue reversed)`, at: Date.now() }); } });
+    state.issues = state.issues.filter(x => x !== editSi);
+  }
+  let grand = 0;
+  for(const r of validRows){
+    const item = state.items.find(i => i.code.toLowerCase() === r.code.toLowerCase());
+    if(item) item.qty -= r.issQty;
+    grand += r.issQty * r.issRate;
+    if(item) state.tx.push({ itemId: item.id, itemName: item.name, type: 'out', qty: r.issQty, reason: `Store Issue ${siNo}`, at: Date.now() });
+  }
+  state.issues.push({ siNo, date: document.getElementById('siDate').value, dept: document.getElementById('siDept').value, to: document.getElementById('siTo').value.trim(), store: document.getElementById('siStore').value, rows: validRows, total: grand, status: 'Saved', savedAt: Date.now() });
+  if(editSi){ editSi = null; } else { state.siCounter++; }
+  saveState();
+  setSiStatus('saved');
+  renderAll();
+  renderSiList();
+  showToast(`Store Issue ${siNo} saved.`);
+}
+
+function printSi(){
+  const validRows = siRows.filter(r => (r.code || r.name) && r.issQty > 0);
+  if(validRows.length === 0){ showToast('Add items before printing.'); return; }
+  printVoucherWindow({ siNo: document.getElementById('siNo').value, date: document.getElementById('siDate').value, dept: document.getElementById('siDept').value, to: document.getElementById('siTo').value.trim(), store: document.getElementById('siStore').value, status: document.getElementById('siStatus').textContent, rows: validRows });
+}
+
+function printVoucherWindow(v){
+  const w = window.open('', '_blank');
+  if(!w){ showToast('Allow pop-ups to print.'); return; }
+  w.document.write(`<!DOCTYPE html><html><head><title>Voucher ${v.siNo}</title><style>body{font-family:Georgia,serif;padding:20px;}table{width:100%;border-collapse:collapse;margin-top:10px;}th,td{border:1px solid #999;padding:6px;font-size:12px;}th{background:#233C2C;color:#fff;}</style></head><body>
+    <h2>Cornerstone School - Store Issue Voucher</h2>
+    <p><strong>SI No:</strong> ${v.siNo} | <strong>Date:</strong> ${v.date} | <strong>Store:</strong> ${v.store} | <strong>Department:</strong> ${v.dept||''} | <strong>Issued To:</strong> ${v.to||'-'}</p>
+    <table><thead><tr><th>#</th><th>Code</th><th>Description</th><th>Unit</th><th>Qty</th><th>Rate</th><th>Total</th></tr></thead>
+    <tbody>${v.rows.map((r,i)=>`<tr><td>${i+1}</td><td>${r.code}</td><td>${r.name}</td><td>${r.unit}</td><td>${r.issQty}</td><td>${r.issRate}</td><td>${r.issQty*r.issRate}</td></tr>`).join('')}</tbody></table>
+  </body></html>`);
+  w.document.close();
+  setTimeout(()=>w.print(), 300);
+}
+
+function renderSiList(){
+  document.getElementById('siListBody').innerHTML = state.issues.length === 0 ? '<div style="padding:10px;">No saved issues.</div>' : [...state.issues].reverse().map(d=>`
+    <div class="hist-item">
+      <div><strong>${d.siNo}</strong> (${d.store})<div class="hist-meta">${d.rows.length} items &middot; ${d.date} &middot; To: ${escapeHtml(d.to||'-')} (${escapeHtml(d.dept||'')})</div></div>
+      <div class="hist-right"><div>${fmtMoney(d.total)}</div><button type="button" class="btn ghost" onclick="editSiByNo('${d.siNo}')" style="padding:2px 8px;font-size:11px;margin-right:6px;">Edit</button><button type="button" class="btn ghost" onclick="printVoucherWindow(${JSON.stringify(d).replace(/"/g, '&quot;')})" style="padding:2px 8px;font-size:11px;">Print</button></div>
+    </div>`).join('');
+}
+
+function setupEvents(){
+  document.querySelectorAll('.tab').forEach(tab=>{
+    tab.addEventListener('click', ()=>{
+      document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+      document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('section-' + tab.dataset.section).classList.add('active');
+    });
+  });
+
+  document.getElementById('search').addEventListener('input', renderLedger);
+  document.getElementById('storeFilter').addEventListener('change', renderLedger);
+  document.getElementById('catFilter').addEventListener('change', renderLedger);
+  document.getElementById('resetBtn').addEventListener('click', resetToReport);
+  document.getElementById('printBtn').addEventListener('click', ()=>window.print());
+
+  document.getElementById('addItemBtn').addEventListener('click', openAddModal);
+  document.getElementById('closeAddModal').addEventListener('click', closeAddModal);
+  document.getElementById('cancelAddModal').addEventListener('click', closeAddModal);
+  document.getElementById('confirmAddModal').addEventListener('click', confirmAddItem);
+
+  document.getElementById('siBody').addEventListener('change', (e)=>{
+    if(!e.target.classList.contains('si-code')) return;
+    const tr = e.target.closest('tr');
+    const row = siRows[parseInt(tr.dataset.idx, 10)];
+    const item = state.items.find(i => i.code.toLowerCase() === e.target.value.trim().toLowerCase());
+    if(item){
+      row.code = item.code; row.name = item.name; row.unit = item.unit; row.avail = item.qty; row.issRate = item.rate;
+      if(parseInt(tr.dataset.idx) === siRows.length - 1) siRows.push(newBlankSiRow());
+    }
+    renderSiRows();
+  });
+
+  document.getElementById('siBody').addEventListener('input', (e)=>{
+    const tr = e.target.closest('tr'); if(!tr) return;
+    const row = siRows[parseInt(tr.dataset.idx, 10)];
+    if(e.target.classList.contains('si-issqty')) row.issQty = parseFloat(e.target.value) || 0;
+    if(e.target.classList.contains('si-issrate')) row.issRate = parseFloat(e.target.value) || 0;
+    row.total = (row.issQty||0) * (row.issRate||0);
+    renderSiRows();
+  });
+
+  document.getElementById('siAddRow').addEventListener('click', ()=>{ siRows.push(newBlankSiRow()); renderSiRows(); });
+  document.getElementById('siSave').addEventListener('click', saveSi);
+  document.getElementById('siPrint').addEventListener('click', printSi);
+  document.getElementById('siRefresh').addEventListener('click', ()=>resetSiForm(true));
+  document.getElementById('siCancel').addEventListener('click', ()=>resetSiForm(true));
+  document.getElementById('siList').addEventListener('click', ()=>{
+    const p = document.getElementById('siListPanel');
+    p.style.display = p.style.display === 'none' ? 'block' : 'none';
+  });
+
+  document.getElementById('ledgerBody').addEventListener('click', (e)=>{
+    const btn = e.target.closest('button[data-act]');
+    if(btn) openModal(btn.dataset.act, parseInt(btn.dataset.id, 10));
+  });
+
+  document.getElementById('closeModal').addEventListener('click', closeModal);
+  document.getElementById('cancelModal').addEventListener('click', closeModal);
+  document.getElementById('confirmModal').addEventListener('click', confirmModalAction);
+}
+
+function init(){
+  document.getElementById('todayDate').textContent = 'Reporting date: ' + new Date().toLocaleDateString();
+  loadState();
+  populateFilters();
+  setupEvents();
+  resetSiForm(true);
+  renderSiList();
+  renderAll();
+}
+
+init();
+</script>
+<script>
+(function(){
+const $=id=>document.getElementById(id), esc=escapeHtml, K='cornerstone_school_v1';
+let db={students:[],books:[],loans:[],notes:[]}, fF=[], fCb=null;
+try{const x=localStorage.getItem(K); if(x) db=Object.assign(db,JSON.parse(x));}catch(e){}
+const save=()=>{try{localStorage.setItem(K,JSON.stringify(db));}catch(e){showToast('Save failed');}};
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const SEED=[{"r":"2200832","n":"Zoraiz Hamza","g":"Male","c":"Reception"},{"r":"2200787","n":"Muhammad Essa","g":"Male","c":"PG-Blue"},{"r":"2200791","n":"Irha Faisal","g":"Female","c":"PG-Blue"},{"r":"2200804","n":"Saleha Mudasser","g":"Female","c":"PG-Blue"},{"r":"2200806","n":"Irtaza Ahmed","g":"Male","c":"PG-Blue"},{"r":"2200810","n":"Mirha Faizan","g":"Female","c":"PG-Blue"},{"r":"2200811","n":"Muhammad Sameh Khan","g":"Male","c":"PG-Blue"},{"r":"2200822","n":"Muhammad Abdullah","g":"Male","c":"PG-Blue"},{"r":"2200825","n":"Muhammad Hameem Adnan","g":"Male","c":"PG-Blue"},{"r":"2200829","n":"Fabiha Ahsan Awan","g":"Female","c":"PG-Blue"},{"r":"2200833","n":"Muhammad Shahzain Umer","g":"Male","c":"PG-Blue"},{"r":"2200834","n":"Afaf Mohammad Waqas","g":"Male","c":"PG-Blue"},{"r":"2200836","n":"Muhammad Khalid Raza","g":"Male","c":"PG-Blue"},{"r":"2200837","n":"Mahrosh Binte Osaid","g":"Female","c":"PG-Blue"},{"r":"2200839","n":"Parishay Zaman","g":"Male","c":"PG-Blue"},{"r":"2200843","n":"M Zoraiz Ahsan","g":"Male","c":"PG-Blue"},{"r":"2200851","n":"Fabeeha Butt","g":"Female","c":"PG-Blue"},{"r":"2200534","n":"Zimal Illyas","g":"Female","c":"KG-Blue"},{"r":"2200568","n":"Muhammad Musa","g":"Male","c":"KG-Blue"},{"r":"2200582","n":"Inshirah Amad","g":"Female","c":"KG-Blue"},{"r":"2200595","n":"Muhammad Sarim Haroon","g":"Male","c":"KG-Blue"},{"r":"2200600","n":"Minal Rabbi","g":"Female","c":"KG-Blue"},{"r":"2200603","n":"Muhammad Zayan Junaid","g":"Male","c":"KG-Blue"},{"r":"2200604","n":"Syed Meesum Haider Bokhari","g":"Male","c":"KG-Blue"},{"r":"2200619","n":"Ayzal Zaman","g":"Male","c":"KG-Blue"},{"r":"2200671","n":"Muhammad Zayan Munib","g":"Male","c":"KG-Blue"},{"r":"2200675","n":"Muhammad Hamza Bilal","g":"Male","c":"KG-Blue"},{"r":"2200678","n":"Orhan Bin Zaid","g":"Male","c":"KG-Blue"},{"r":"2200683","n":"Sania Zehra Zaidi","g":"Female","c":"KG-Blue"},{"r":"2200684","n":"Raima Ali","g":"Female","c":"KG-Blue"},{"r":"2200685","n":"Romana Ali","g":"Female","c":"KG-Blue"},{"r":"2200714","n":"Syeda Zirwa Zehra","g":"Female","c":"KG-Blue"},{"r":"2200733","n":"Hafsa Kaleemullah","g":"Female","c":"KG-Blue"},{"r":"2200744","n":"Sara Shahida","g":"Male","c":"KG-Blue"},{"r":"2200751","n":"Miraal Fatima","g":"Female","c":"KG-Blue"},{"r":"2200759","n":"Inaaya Rehman","g":"Female","c":"KG-Blue"},{"r":"2200760","n":"Anaya Junaid","g":"Female","c":"KG-Blue"},{"r":"2200761","n":"Fajar Aseer","g":"Female","c":"KG-Blue"},{"r":"2200762","n":"Irha Abdul Rehman","g":"Female","c":"KG-Blue"},{"r":"2200797","n":"Azlan Shenazer","g":"Male","c":"KG-Blue"},{"r":"2200812","n":"Minha Omer","g":"Female","c":"KG-Blue"},{"r":"2200813","n":"Zohan Waleed","g":"Male","c":"KG-Blue"},{"r":"2200838","n":"Muhammad Ashar","g":"Male","c":"KG-Blue"},{"r":"2200840","n":"Muhammad Ibrahim Fahad","g":"Male","c":"KG-Blue"},{"r":"2200533","n":"Syed Haider Ali","g":"Male","c":"KG-Red"},{"r":"2200571","n":"Muhammad Affan","g":"Male","c":"KG-Red"},{"r":"2200602","n":"Abdul Ghani","g":"Male","c":"KG-Red"},{"r":"2200606","n":"Muhammad Zohan Yousaf","g":"Male","c":"KG-Red"},{"r":"2200615","n":"Ayesha Zain","g":"Female","c":"KG-Red"},{"r":"2200627","n":"Alaya Adeem","g":"Female","c":"KG-Red"},{"r":"2200639","n":"Isra Rauf","g":"Female","c":"KG-Red"},{"r":"2200640","n":"Sukainah","g":"Female","c":"KG-Red"},{"r":"2200641","n":"Syeda Khadija Raza","g":"Female","c":"KG-Red"},{"r":"2200656","n":"Muhammad Sarim Anas","g":"Male","c":"KG-Red"},{"r":"2200670","n":"Ali Ibraheem","g":"Male","c":"KG-Red"},{"r":"2200672","n":"Hashir Ali Sandhu","g":"Male","c":"KG-Red"},{"r":"2200681","n":"Zayan Arslan","g":"Male","c":"KG-Red"},{"r":"2200693","n":"Minha Zahra Sherazi","g":"Female","c":"KG-Red"},{"r":"2200723","n":"Azan Ali","g":"Male","c":"KG-Red"},{"r":"2200726","n":"Aira Habib","g":"Female","c":"KG-Red"},{"r":"2200728","n":"Muhammad Raahil Omair","g":"Male","c":"KG-Red"},{"r":"2200731","n":"Areeba Ahsan Awan","g":"Female","c":"KG-Red"},{"r":"2200755","n":"Mustafa Usman Khan","g":"Male","c":"KG-Red"},{"r":"2200770","n":"Huda Afnan","g":"Female","c":"KG-Red"},{"r":"2200792","n":"Syed Mohammad Qasim Shabir","g":"Male","c":"KG-Red"},{"r":"2200796","n":"Muhammad Orhan","g":"Male","c":"KG-Red"},{"r":"2200803","n":"Umme Hani","g":"Female","c":"KG-Red"},{"r":"2200831","n":"Noor Waqas Qazi","g":"Female","c":"KG-Red"},{"r":"2200835","n":"Muhammad Shazil Ahsan","g":"Male","c":"KG-Red"},{"r":"2200846","n":"Alaina Shayan","g":"Female","c":"KG-Red"},{"r":"2200415","n":"Ali Haider","g":"Male","c":"KG-SEN"},{"r":"2200739","n":"Muhammad Haris Kashif","g":"Male","c":"KG-SEN"},{"r":"2200321","n":"Qirat Shafaqat","g":"Female","c":"Prep-Blue"},{"r":"2200340","n":"Ibrahim Haseeb","g":"Male","c":"Prep-Blue"},{"r":"2200350","n":"Muhammad Musa","g":"Male","c":"Prep-Blue"},{"r":"2200353","n":"Muhammad Orhan Dar","g":"Male","c":"Prep-Blue"},{"r":"2200354","n":"M Ebad Kashif","g":"Male","c":"Prep-Blue"},{"r":"2200355","n":"Mirha Ahsan Khan","g":"Female","c":"Prep-Blue"},{"r":"2200390","n":"Hashim Raza","g":"Male","c":"Prep-Blue"},{"r":"2200440","n":"Muhammad Nadir","g":"Male","c":"Prep-Blue"},{"r":"2200445","n":"Irha Irfan","g":"Female","c":"Prep-Blue"},{"r":"2200482","n":"Fatima Haris","g":"Female","c":"Prep-Blue"},{"r":"2200518","n":"Muhammad Ali Adil","g":"Male","c":"Prep-Blue"},{"r":"2200527","n":"Zahra Ali","g":"Female","c":"Prep-Blue"},{"r":"2200650","n":"Maira Adnan Raja","g":"Female","c":"Prep-Blue"},{"r":"2200664","n":"Syeda Urwa Fatima","g":"Female","c":"Prep-Blue"},{"r":"2200669","n":"Fatima Umair","g":"Female","c":"Prep-Blue"},{"r":"2200725","n":"Zumer Aseer","g":"Female","c":"Prep-Blue"},{"r":"2200735","n":"Basim Ali","g":"Male","c":"Prep-Blue"},{"r":"2200741","n":"Muhammad Hussain Sultan","g":"Male","c":"Prep-Blue"},{"r":"2200784","n":"Muhammad Hazik Dar","g":"Male","c":"Prep-Blue"},{"r":"2200785","n":"Mantsha M. Arslan","g":"Female","c":"Prep-Blue"},{"r":"2200786","n":"Muhammad Umar","g":"Male","c":"Prep-Blue"},{"r":"2200830","n":"Anaya Imran","g":"Female","c":"Prep-Blue"},{"r":"2200320","n":"Mirza Jassar Baig","g":"Male","c":"Prep-Red"},{"r":"2200349","n":"Syeda Roshaneh Fatima","g":"Female","c":"Prep-Red"},{"r":"2200356","n":"Khirman Binte Osaid","g":"Female","c":"Prep-Red"},{"r":"2200369","n":"Zahra Rauf","g":"Female","c":"Prep-Red"},{"r":"2200379","n":"Muhammad Awaab","g":"Male","c":"Prep-Red"},{"r":"2200381","n":"Zainab Fatima Muzafar","g":"Female","c":"Prep-Red"},{"r":"2200466","n":"Ayaat Athar","g":"Female","c":"Prep-Red"},{"r":"2200477","n":"Mirha Fatima","g":"Female","c":"Prep-Red"},{"r":"2200480","n":"Muhammad Ibrahim","g":"Male","c":"Prep-Red"},{"r":"2200512","n":"Muhammad Taha","g":"Male","c":"Prep-Red"},{"r":"2200535","n":"Mirha Fahad","g":"Female","c":"Prep-Red"},{"r":"2200537","n":"Husain Ibraheem","g":"Male","c":"Prep-Red"},{"r":"2200551","n":"Muhammad Ibrahim Cheema","g":"Male","c":"Prep-Red"},{"r":"2200570","n":"Amna Raza","g":"Female","c":"Prep-Red"},{"r":"2200599","n":"Syeda Ayesha Bukhari","g":"Female","c":"Prep-Red"},{"r":"2200727","n":"Muhammad Mujtaba Burki","g":"Male","c":"Prep-Red"},{"r":"2200737","n":"Maryam Yahya","g":"Female","c":"Prep-Red"},{"r":"2200790","n":"Izyan Moeed","g":"Male","c":"Prep-Red"},{"r":"2200794","n":"Azbah Alyas","g":"Male","c":"Prep-Red"},{"r":"2200795","n":"Sahla Alyas","g":"Female","c":"Prep-Red"},{"r":"2200855","n":"Arham Iftikhar","g":"Male","c":"Prep-Red"},{"r":"2200190","n":"Khadija Haq","g":"Female","c":"Prep-SEN"},{"r":"2200442","n":"Shahzain Zahoor","g":"Male","c":"Prep-SEN"},{"r":"2200155","n":"Areeha Awais","g":"Female","c":"1-Blue"},{"r":"2200178","n":"Muhammad Sarim Khan","g":"Male","c":"1-Blue"},{"r":"2200198","n":"Syed Shajar Raza","g":"Male","c":"1-Blue"},{"r":"2200223","n":"Hashim Ahmad","g":"Male","c":"1-Blue"},{"r":"2200228","n":"Khawaja Azil Moeez","g":"Male","c":"1-Blue"},{"r":"2200238","n":"Mehboob Ahad","g":"Male","c":"1-Blue"},{"r":"2200248","n":"Mirha Fatima","g":"Female","c":"1-Blue"},{"r":"2200263","n":"Eesa Bin Usama","g":"Male","c":"1-Blue"},{"r":"2200288","n":"Minha Asif","g":"Female","c":"1-Blue"},{"r":"2200314","n":"Muhammad Arham Siddique","g":"Male","c":"1-Blue"},{"r":"2200322","n":"Muhammad Hadi Hamza","g":"Male","c":"1-Blue"},{"r":"2200348","n":"Hoorain Fatima","g":"Female","c":"1-Blue"},{"r":"2200361","n":"Muhammad Arsam","g":"Male","c":"1-Blue"},{"r":"2200388","n":"Hareem Rizwan","g":"Female","c":"1-Blue"},{"r":"2200450","n":"Ahad Jabran","g":"Male","c":"1-Blue"},{"r":"2200644","n":"Aariz Zeeshan","g":"Male","c":"1-Blue"},{"r":"2200662","n":"Syeda Abeera Fatima","g":"Female","c":"1-Blue"},{"r":"2200663","n":"Syeda Emaan Fatima","g":"Female","c":"1-Blue"},{"r":"2200809","n":"Muntaha Kamran","g":"Female","c":"1-Blue"},{"r":"2200828","n":"Furqan Nasir","g":"Male","c":"1-Blue"},{"r":"2200844","n":"Aliza Tariq","g":"Female","c":"1-Blue"},{"r":"2200853","n":"Zainab Fatima","g":"Female","c":"1-Blue"},{"r":"2200139","n":"Syed Afan Bacha","g":"Male","c":"1-Red"},{"r":"2200261","n":"Muhammad Esmaeel Durrani","g":"Male","c":"1-Red"},{"r":"2200267","n":"Alaya Fatima","g":"Female","c":"1-Red"},{"r":"2200301","n":"Aima Omer","g":"Female","c":"1-Red"},{"r":"2200389","n":"Haider Raza","g":"Male","c":"1-Red"},{"r":"2200447","n":"Dua Fatima","g":"Female","c":"1-Red"},{"r":"2200472","n":"Ibrahim Ahsan","g":"Male","c":"1-Red"},{"r":"2200489","n":"Eshal Asif","g":"Female","c":"1-Red"},{"r":"2200609","n":"Rida -i- Muhammad Noman","g":"Female","c":"1-Red"},{"r":"2200634","n":"Azan Ahmad","g":"Male","c":"1-Red"},{"r":"2200680","n":"Surriya Fatima","g":"Female","c":"1-Red"},{"r":"2200706","n":"Muntaha Fatima","g":"Female","c":"1-Red"},{"r":"2200721","n":"Mustafa Sibhatullah","g":"Male","c":"1-Red"},{"r":"2200740","n":"Muhammad Abbas Sultan","g":"Male","c":"1-Red"},{"r":"2200310","n":"Haider Kaleem Ullah","g":"Male","c":"1-SEN"},{"r":"2200017","n":"Bareerah Furjam","g":"Female","c":"2-Blue"},{"r":"2200022","n":"Abdul Momin Qureshi","g":"Male","c":"2-Blue"},{"r":"2200037","n":"Abdullah Usman Khawaja","g":"Male","c":"2-Blue"},{"r":"2200041","n":"Zoeya Ibtisam","g":"Female","c":"2-Blue"},{"r":"2200074","n":"Ilyana Usama","g":"Female","c":"2-Blue"},{"r":"2200077","n":"Haider Abdul Rehman","g":"Male","c":"2-Blue"},{"r":"2200161","n":"Eshal Shahid","g":"Female","c":"2-Blue"},{"r":"2200180","n":"Muhammad Umer","g":"Male","c":"2-Blue"},{"r":"2200199","n":"Zulkifal Bilal","g":"Male","c":"2-Blue"},{"r":"2200224","n":"Hashir Ahmad","g":"Male","c":"2-Blue"},{"r":"2200282","n":"Emaan Saad","g":"Female","c":"2-Blue"},{"r":"2200287","n":"Muhammad Ibrahim Yousaf","g":"Male","c":"2-Blue"},{"r":"2200316","n":"Haider Ali","g":"Male","c":"2-Blue"},{"r":"2200347","n":"Rameen Fatima","g":"Female","c":"2-Blue"},{"r":"2200362","n":"Muhammad Arham","g":"Male","c":"2-Blue"},{"r":"2200367","n":"Arham Haroon","g":"Male","c":"2-Blue"},{"r":"2200441","n":"Hafsa Ahmad","g":"Female","c":"2-Blue"},{"r":"2200510","n":"Muhib - ul- Hassan","g":"Male","c":"2-Blue"},{"r":"2200677","n":"Nashra Fatima Khan","g":"Female","c":"2-Blue"},{"r":"2200783","n":"Muhammad Nasik Dar","g":"Male","c":"2-Blue"},{"r":"2200852","n":"Hareem Fatima","g":"Female","c":"2-Blue"},{"r":"2200098","n":"Muhammad Arham Haseeb","g":"Male","c":"2-SEN"},{"r":"2200222","n":"Muhammad Essa Dar","g":"Male","c":"2-SEN"},{"r":"2200494","n":"Musa Ali Waqas","g":"Male","c":"2-SEN"},{"r":"2200645","n":"Usman Haroon","g":"Male","c":"2-SEN"},{"r":"2200016","n":"Hafsa Ali","g":"Female","c":"2-Red"},{"r":"2200025","n":"Muhammad Ibrahim Qureshi","g":"Male","c":"2-Red"},{"r":"2200035","n":"Zoya Arslan","g":"Female","c":"2-Red"},{"r":"2200036","n":"Ain Ul Hassan","g":"Male","c":"2-Red"},{"r":"2200126","n":"Sabeen Haseeb","g":"Female","c":"2-Red"},{"r":"2200147","n":"Zarmina Adnan","g":"Female","c":"2-Red"},{"r":"2200194","n":"Abdul Hadi Mubasher","g":"Male","c":"2-Red"},{"r":"2200196","n":"Bilal Rehman","g":"Male","c":"2-Red"},{"r":"2200216","n":"Umamah Saif","g":"Female","c":"2-Red"},{"r":"2200363","n":"Hania Fatima","g":"Female","c":"2-Red"},{"r":"2200492","n":"Aayyat Rana","g":"Female","c":"2-Red"},{"r":"2200549","n":"Aira Nadeem","g":"Female","c":"2-Red"},{"r":"2200554","n":"llyana Saad","g":"Female","c":"2-Red"},{"r":"2200622","n":"Noor Mehtab","g":"Female","c":"2-Red"},{"r":"2200643","n":"Hayah Amir","g":"Female","c":"2-Red"},{"r":"2200666","n":"Muhammad Ahmed Usman","g":"Male","c":"2-Red"},{"r":"2200667","n":"Areeba Butt","g":"Female","c":"2-Red"},{"r":"2200703","n":"Armish Khurram","g":"Female","c":"2-Red"},{"r":"2200776","n":"M. Abdullah Adnan","g":"Male","c":"2-Red"},{"r":"2200020","n":"Maryam Burki","g":"Female","c":"3-Blue"},{"r":"2200073","n":"Mohammad Zain Ul Abideen","g":"Male","c":"3-Blue"},{"r":"2200083","n":"Zainab Awais","g":"Female","c":"3-Blue"},{"r":"2200086","n":"Sarim Kamil","g":"Male","c":"3-Blue"},{"r":"2200103","n":"Ayesha Kashif","g":"Female","c":"3-Blue"},{"r":"2200162","n":"Muhammad Abdullah","g":"Male","c":"3-Blue"},{"r":"2200202","n":"Irha Fatima","g":"Female","c":"3-Blue"},{"r":"2200235","n":"Sultan Aseer","g":"Male","c":"3-Blue"},{"r":"2200283","n":"Ayra Asghar","g":"Female","c":"3-Blue"},{"r":"2200304","n":"Anaya Abdullah","g":"Female","c":"3-Blue"},{"r":"2200342","n":"M Aariz","g":"Male","c":"3-Blue"},{"r":"2200359","n":"Muhammad Musa Badar","g":"Male","c":"3-Blue"},{"r":"2200475","n":"Muhammad Rayan","g":"Male","c":"3-Blue"},{"r":"2200616","n":"Eesha Arifeen","g":"Female","c":"3-Blue"},{"r":"2200636","n":"Ahmed Mustafa Lodhi","g":"Male","c":"3-Blue"},{"r":"2200793","n":"Muhammad Meesam","g":"Male","c":"3-Blue"},{"r":"2200798","n":"Abdullah Mughees","g":"Male","c":"3-Blue"},{"r":"2200808","n":"Meezab-E- Rehmat","g":"Female","c":"3-Blue"},{"r":"2200845","n":"Anabia Tariq","g":"Male","c":"3-Blue"},{"r":"2200849","n":"Umaima Ali","g":"Female","c":"3-Blue"},{"r":"2200004","n":"Ammar Zeeshan","g":"Male","c":"3-Red"},{"r":"2200029","n":"Muhammad Mustafa Burki","g":"Male","c":"3-Red"},{"r":"2200040","n":"Wardan Najam","g":"Male","c":"3-Red"},{"r":"2200116","n":"Saniyya Faisal Durrani","g":"Female","c":"3-Red"},{"r":"2200125","n":"Hassan Ibraheem","g":"Male","c":"3-Red"},{"r":"2200143","n":"Muhammad Umar","g":"Male","c":"3-Red"},{"r":"2200156","n":"Syeda Zary Fatima","g":"Female","c":"3-Red"},{"r":"2200189","n":"Irha Fatima","g":"Female","c":"3-Red"},{"r":"2200424","n":"Arham Waqas","g":"Male","c":"3-Red"},{"r":"2200548","n":"Hamdan Nadeem","g":"Male","c":"3-Red"},{"r":"2200589","n":"Muhammad Saqib","g":"Male","c":"3-Red"},{"r":"2200638","n":"Arsel Karim","g":"Male","c":"3-Red"},{"r":"2200661","n":"Muhammad Abdur- Rehman Suleman","g":"Male","c":"3-Red"},{"r":"2200729","n":"Musa Aneeq","g":"Male","c":"3-Red"},{"r":"2200734","n":"Nayel Ali","g":"Male","c":"3-Red"},{"r":"2200777","n":"Sarah Adnan","g":"Female","c":"3-Red"},{"r":"2200821","n":"Syeda Safah Turab","g":"Female","c":"3-Red"},{"r":"2200433","n":"Haniya Khuram Chaudhry","g":"Female","c":"3-SEN"},{"r":"2200766","n":"Muhammad Ahmad","g":"Male","c":"4-SEN"},{"r":"2200014","n":"Yahya Bin Abuzar","g":"Male","c":"4-Blue"},{"r":"2200032","n":"Shameer Saqib","g":"Male","c":"4-Blue"},{"r":"2200055","n":"Shifa Wajahat","g":"Female","c":"4-Blue"},{"r":"2200076","n":"Khadija Abdul Rehman","g":"Female","c":"4-Blue"},{"r":"2200082","n":"Noor Awais","g":"Female","c":"4-Blue"},{"r":"2200087","n":"Abdul Hadi Kamil","g":"Male","c":"4-Blue"},{"r":"2200105","n":"Meerab Yasir","g":"Female","c":"4-Blue"},{"r":"2200112","n":"Muhammad Arham","g":"Male","c":"4-Blue"},{"r":"2200148","n":"Zeenia Aamir","g":"Female","c":"4-Blue"},{"r":"2200158","n":"Aliza Fatima","g":"Female","c":"4-Blue"},{"r":"2200170","n":"Mahrosh Iqbal","g":"Female","c":"4-Blue"},{"r":"2200191","n":"Anaya Haq","g":"Female","c":"4-Blue"},{"r":"2200284","n":"Emaad Asghar","g":"Male","c":"4-Blue"},{"r":"2200479","n":"Mahroosh Fatima","g":"Female","c":"4-Blue"},{"r":"2200687","n":"Faqir Muhammad Abdul Rahim","g":"Male","c":"4-Blue"},{"r":"2200754","n":"Ibrahim Sami","g":"Male","c":"4-Blue"},{"r":"2200802","n":"Muhammad Maaz","g":"Male","c":"4-Blue"},{"r":"2200815","n":"Minahil Mohsin","g":"Female","c":"4-Blue"},{"r":"2200312","n":"Areej Ahmad","g":"Female","c":"4-Red"},{"r":"2200327","n":"Rafay Raheel","g":"Male","c":"4-Red"},{"r":"2200332","n":"Muhammad Hashir Junaid","g":"Male","c":"4-Red"},{"r":"2200338","n":"Muhammad Mekaeel","g":"Male","c":"4-Red"},{"r":"2200341","n":"Muhammad Azhaan","g":"Male","c":"4-Red"},{"r":"2200352","n":"Umme Hani","g":"Female","c":"4-Red"},{"r":"2200357","n":"Rameen Aroosh","g":"Female","c":"4-Red"},{"r":"2200364","n":"Momina Fatima","g":"Female","c":"4-Red"},{"r":"2200384","n":"Rohaima Waseem","g":"Female","c":"4-Red"},{"r":"2200402","n":"Muhammad Ibrahim","g":"Male","c":"4-Red"},{"r":"2200413","n":"Maryam Ghazanfar","g":"Female","c":"4-Red"},{"r":"2200594","n":"Arham Faisal","g":"Male","c":"4-Red"},{"r":"2200613","n":"Muhammad Haider Latif","g":"Male","c":"4-Red"},{"r":"2200657","n":"Muhammad Ali Hadi","g":"Male","c":"4-Red"},{"r":"2200676","n":"Farisha Asad Khan","g":"Female","c":"4-Red"},{"r":"2200701","n":"Rumaisa Khurram","g":"Female","c":"4-Red"},{"r":"2200788","n":"Syed Muhammad Taqi","g":"Male","c":"4-Red"},{"r":"2200800","n":"Hamzah Hammad Siddiqui","g":"Male","c":"4-Red"},{"r":"2200006","n":"Muhammad Wadie Ahsan","g":"Male","c":"5-Blue"},{"r":"2200018","n":"Romesa Burki","g":"Male","c":"5-Blue"},{"r":"2200031","n":"Ayan Saqib","g":"Male","c":"5-Blue"},{"r":"2200136","n":"Fabeha Shafaqat Ali","g":"Female","c":"5-Blue"},{"r":"2200210","n":"Ahmed Awais","g":"Male","c":"5-Blue"},{"r":"2200293","n":"Shan-e-Muhammad Asim","g":"Male","c":"5-Blue"},{"r":"2200302","n":"Mahnoor Omer","g":"Female","c":"5-Blue"},{"r":"2200380","n":"Musa Raza","g":"Male","c":"5-Blue"},{"r":"2200385","n":"Muhammad Ali","g":"Male","c":"5-Blue"},{"r":"2200425","n":"Rohaan Waqas","g":"Male","c":"5-Blue"},{"r":"2200528","n":"Syed Ismael Mohsin","g":"Male","c":"5-Blue"},{"r":"2200024","n":"Parsa Qureshi","g":"Female","c":"5-Red"},{"r":"2200050","n":"Hareem Kashif","g":"Female","c":"5-Red"},{"r":"2200303","n":"Eman Fatima","g":"Female","c":"5-Red"},{"r":"2200443","n":"Muhammad Bin Waqas","g":"Male","c":"5-Red"},{"r":"2200449","n":"Mustafa Bin Kashif","g":"Male","c":"5-Red"},{"r":"2200483","n":"Muhammad Abdul Ahad Khan","g":"Male","c":"5-Red"},{"r":"2200509","n":"Zauraiz Hassan","g":"Male","c":"5-Red"},{"r":"2200608","n":"Iffat-Tuz-Zahra Noman","g":"Female","c":"5-Red"},{"r":"2200614","n":"Anabiya Adil","g":"Female","c":"5-Red"},{"r":"2200782","n":"Muhammad Aakif Dar","g":"Male","c":"5-Red"},{"r":"2200817","n":"Mohammad Zayan Ali","g":"Male","c":"5-Red"},{"r":"2200820","n":"Syeda Adan Turab","g":"Female","c":"5-Red"},{"r":"2200824","n":"Muhammad Waleed Adnan","g":"Male","c":"5-Red"},{"r":"2200005","n":"Rijja Qureshi","g":"Female","c":"6-Blue"},{"r":"2200007","n":"Muhammad Basil Ahsan","g":"Male","c":"6-Blue"},{"r":"2200009","n":"Maryam Awan","g":"Female","c":"6-Blue"},{"r":"2200034","n":"Anayah Arslan","g":"Female","c":"6-Blue"},{"r":"2200042","n":"Aarib Ibtisam","g":"Male","c":"6-Blue"},{"r":"2200057","n":"Mominah Abid Khan","g":"Female","c":"6-Blue"},{"r":"2200084","n":"Abdullah Muhammad Awais","g":"Male","c":"6-Blue"},{"r":"2200093","n":"Haaniya Shoaib","g":"Female","c":"6-Blue"},{"r":"2200106","n":"Anaya Yasir","g":"Female","c":"6-Blue"},{"r":"2200200","n":"Rohaan Bilal","g":"Male","c":"6-Blue"},{"r":"2200211","n":"Muhammad Yahya Awais","g":"Male","c":"6-Blue"},{"r":"2200296","n":"Amber Nouman","g":"Female","c":"6-Blue"},{"r":"2200396","n":"Minaal Fatima","g":"Female","c":"6-Blue"},{"r":"2200486","n":"Muhammad Basim","g":"Male","c":"6-Blue"},{"r":"2200491","n":"Muhammad Ammaar Rana","g":"Male","c":"6-Blue"},{"r":"2200513","n":"Muhammad Abubakar Muzafar","g":"Male","c":"6-Blue"},{"r":"2200590","n":"Muhammad Asad","g":"Male","c":"6-Blue"},{"r":"2200618","n":"Fajar Siddiqui","g":"Female","c":"6-Blue"},{"r":"2200637","n":"Muhammad Rayyan Faisal","g":"Male","c":"6-Blue"},{"r":"2200665","n":"Ali Zain Muzaffar Shah","g":"Male","c":"6-Blue"},{"r":"2200668","n":"Taha Bin Naveed","g":"Male","c":"6-Blue"},{"r":"2200720","n":"Yasmeen Umair","g":"Female","c":"6-Blue"},{"r":"2200789","n":"Maiza Moeed","g":"Female","c":"6-Blue"},{"r":"2200827","n":"Hayyan Nasir","g":"Male","c":"6-Blue"},{"r":"2200015","n":"Uzair Bin Abuzar","g":"Male","c":"7-Blue"},{"r":"2200023","n":"Jaza Qureshi","g":"Female","c":"7-Blue"},{"r":"2200095","n":"Muhammad Haani Raza","g":"Male","c":"7-Blue"},{"r":"2200188","n":"Muhammad Musa Hasnain","g":"Male","c":"7-Blue"},{"r":"2200241","n":"Meher Mah Shahid","g":"Female","c":"7-Blue"},{"r":"2200346","n":"Eshaal Fatima","g":"Female","c":"7-Blue"},{"r":"2200368","n":"Manahil Haroon","g":"Female","c":"7-Blue"},{"r":"2200438","n":"Ebad Mateen","g":"Male","c":"7-Blue"},{"r":"2200569","n":"Hassan Salman","g":"Male","c":"7-Blue"},{"r":"2200624","n":"Wania Farooq","g":"Female","c":"7-Blue"},{"r":"2200625","n":"Abdullah Farooq","g":"Male","c":"7-Blue"},{"r":"2200699","n":"Rania Khan","g":"Female","c":"7-Blue"},{"r":"2200805","n":"Muhammad Husnain","g":"Male","c":"7-Blue"},{"r":"2200814","n":"Muhammad Saad Mohsin","g":"Male","c":"7-Blue"},{"r":"2200186","n":"Syed Ali Asgher Sherazi","g":"Male","c":"7-Red"},{"r":"2200244","n":"Muhammad Ahmed","g":"Male","c":"7-Red"},{"r":"2200273","n":"Mirha Imran","g":"Female","c":"7-Red"},{"r":"2200311","n":"Ayyan Ahmad","g":"Male","c":"7-Red"},{"r":"2200331","n":"Anaya Sabihullah","g":"Female","c":"7-Red"},{"r":"2200339","n":"Abdul Hadi","g":"Male","c":"7-Red"},{"r":"2200376","n":"Hoorain Fatima","g":"Female","c":"7-Red"},{"r":"2200448","n":"Muhammad Bin Kashif","g":"Male","c":"7-Red"},{"r":"2200478","n":"Muhammad Mohid","g":"Male","c":"7-Red"},{"r":"2200611","n":"Mustafa Fahad","g":"Male","c":"7-Red"},{"r":"2200649","n":"Mohammad Abdullah Adnan","g":"Male","c":"7-Red"},{"r":"2200710","n":"Manha Khaliq","g":"Male","c":"7-Red"},{"r":"2200807","n":"Meerab Kamran","g":"Female","c":"7-Red"},{"r":"2200111","n":"Eshaal Khan","g":"Female","c":"8-IBusiness"},{"r":"2200358","n":"Muhammad Yahya Badar","g":"Male","c":"8-IBusiness"},{"r":"2200387","n":"Malik Mohib Ahmed","g":"Male","c":"8-IBusiness"},{"r":"2200763","n":"Asadullah Kashif","g":"Male","c":"8-IBusiness"},{"r":"2200767","n":"Maarij Awan","g":"Female","c":"8-IBusiness"},{"r":"2200054","n":"Arsalan Wajhat","g":"Male","c":"8-IScience"},{"r":"2200142","n":"Zaviyar Ahmad","g":"Male","c":"8-IScience"},{"r":"2200145","n":"Zara Adnan","g":"Female","c":"8-IScience"},{"r":"2200164","n":"Muhammad Khizar Adnan","g":"Male","c":"8-IScience"},{"r":"2200195","n":"Muhammad Abubakar Mubasher","g":"Male","c":"8-IScience"},{"r":"2200294","n":"Husnain Asim Iqbal","g":"Male","c":"8-IScience"},{"r":"2200295","n":"Shahzain Asim","g":"Male","c":"8-IScience"},{"r":"2200326","n":"Hayal Raheel","g":"Female","c":"8-IScience"},{"r":"2200370","n":"Rahimeen Talha","g":"Male","c":"8-IScience"},{"r":"2200691","n":"Meerab Khan","g":"Female","c":"8-IScience"},{"r":"2200816","n":"Hadiyat Imran","g":"Female","c":"8-IScience"},{"r":"2200818","n":"Ayat Zeeshan Ali","g":"Female","c":"8-IScience"},{"r":"2200823","n":"Haleema Adnan","g":"Female","c":"8-IScience"},{"r":"2200826","n":"Affan Nasir","g":"Male","c":"8-IScience"},{"r":"2200543","n":"Rida Shabbir","g":"Female","c":"9-I"},{"r":"2200752","n":"Ayaan Kashif","g":"Male","c":"9-I"},{"r":"2200799","n":"Areebah Hammad Siddiqui","g":"Female","c":"9-I"},{"r":"2200141","n":"Abdul Hadi","g":"Male","c":"9I Business"},{"r":"2200187","n":"Roheimann Malik","g":"Female","c":"9I Business"},{"r":"2200351","n":"Ayaan Usman","g":"Male","c":"9I Business"},{"r":"2200382","n":"Ayaan Ahmed","g":"Male","c":"9I Business"},{"r":"2200437","n":"Areeba Mateen","g":"Female","c":"9I Business"},{"r":"2200439","n":"M. Rohan Majid","g":"Male","c":"9I Business"},{"r":"2200578","n":"Ayan Rizwan","g":"Male","c":"9I Business"},{"r":"2200607","n":"M Wamiq Saad","g":"Male","c":"9I Business"},{"r":"2200610","n":"Shaaf Bin Fahad","g":"Male","c":"9I Business"},{"r":"2200176","n":"Adam Saad","g":"Male","c":"9I Science"},{"r":"2200182","n":"Muhammad Zahid Jamil","g":"Male","c":"9I Science"},{"r":"2200255","n":"Harun Islah-Ud-Din","g":"Male","c":"9I Science"},{"r":"2200281","n":"Muhammad Umer","g":"Male","c":"9I Science"},{"r":"2200325","n":"Noor ul Huda Fatima","g":"Female","c":"9I Science"},{"r":"2200360","n":"Daneen Aroosh","g":"Female","c":"9I Science"},{"r":"2200365","n":"Wania Fatima","g":"Female","c":"9I Science"},{"r":"2200436","n":"M. Ahmad","g":"Male","c":"9I Science"},{"r":"2200514","n":"Muhammad Abdullah","g":"Male","c":"9I Science"},{"r":"2200544","n":"Musaab Zahid","g":"Male","c":"9I Science"},{"r":"2200715","n":"Muhammad Ayaan Faheem","g":"Male","c":"9I Science"},{"r":"2200716","n":"Muhammad Eshaan Faheem","g":"Male","c":"9I Science"},{"r":"2200757","n":"Abbas Hasan","g":"Male","c":"9I Science"},{"r":"2200019","n":"Roeda Burki","g":"Female","c":"10-I"},{"r":"2200177","n":"Rahim Saad","g":"Male","c":"10-I"},{"r":"2200225","n":"Hadiya Masood","g":"Female","c":"10-I"},{"r":"2200049","n":"Raffid Kashif","g":"Male","c":"10I Business"},{"r":"2200094","n":"Muhammad Moosa Raza","g":"Male","c":"10I Business"},{"r":"2200163","n":"Faizan Ali","g":"Male","c":"10I Business"},{"r":"2200181","n":"Muhammad Raahim","g":"Male","c":"10I Business"},{"r":"2200254","n":"Hadia Malik","g":"Female","c":"10I Business"},{"r":"2200333","n":"Ismail Haroon","g":"Male","c":"10I Business"},{"r":"2200405","n":"Maryam Nasir","g":"Female","c":"10I Business"},{"r":"2200460","n":"M. Aayan Majid","g":"Male","c":"10I Business"},{"r":"2200463","n":"Ayesha Tahir","g":"Female","c":"10I Business"},{"r":"2200709","n":"Syeda Eshaal Fatima","g":"Female","c":"Day Care"},{"r":"2200769","n":"Danyal Ali","g":"Male","c":"Day Care"},{"r":"2200854","n":"Fajar Farhat","g":"Female","c":"RWAC"},{"r":"2200848","n":"Rohaan Mustafa","g":"Male","c":"RWANDC-3 HOURS"},{"r":"2200487","n":"Sarim Hassan","g":"Male","c":"1-SEN"},{"r":"2200746","n":"Muhammad Arham Rasheed","g":"Male","c":"4-SEN"},{"r":"2200596","n":"Nyle Hassan Qazi","g":"Male","c":"5-SEN"},{"r":"2200756","n":"Usayd Hassan","g":"Male","c":"5-SEN"},{"r":"2200146","n":"Zain Adnan","g":"Male","c":"8I-SEN"},{"r":"2200464","n":"Shahzain Kamran","g":"Male","c":"8I-SEN"},{"r":"2200330","n":"Aniya Awais","g":"Male","c":"KG-SEN"},{"r":"2200481","n":"Muhammad Aaliyan Waqas","g":"Male","c":"PG-SEN"},{"r":"2200745","n":"Abdul Hadi","g":"Male","c":"Prep-SEN"},{"r":"2200173","n":"Muhammad Ali Khushnood","g":"Male","c":"RWANDC-3 HOURS"},{"r":"2200220","n":"M. Abdul Muqsit","g":"Male","c":"RWANDC-3 HOURS"},{"r":"2200328","n":"Abdul Hadi Muzafar","g":"Male","c":"RWANDC-3 HOURS"},{"r":"2200446","n":"Mujtaba Faisal","g":"Male","c":"RWANDC-3 HOURS"},{"r":"2200474","n":"Musa Ali Rao","g":"Male","c":"RWANDC-3 HOURS"},{"r":"2200503","n":"Muhammad Mustafa","g":"Male","c":"RWANDC-3 HOURS"},{"r":"2200605","n":"Irha Sami","g":"Female","c":"RWANDC-3 HOURS"},{"r":"2200246","n":"Shaheer Ahmad","g":"Male","c":"RWANDC-SEN"},{"r":"2200262","n":"Shazil Rafi","g":"Male","c":"RWANDC-SEN"},{"r":"2200337","n":"Dawer Ahmed Siddiqui","g":"Male","c":"RWANDC-SEN"},{"r":"2200427","n":"Muhammad Mujtaba","g":"Male","c":"RWANDC-SEN"},{"r":"2200429","n":"M. Essa Khan","g":"Male","c":"RWANDC-SEN"},{"r":"2200432","n":"Muhammad Shehroz Zeeshan","g":"Male","c":"RWANDC-SEN"},{"r":"2200444","n":"Salar Abbas Zaidi","g":"Male","c":"RWANDC-SEN"},{"r":"2200504","n":"Fatima Sheraz","g":"Female","c":"RWANDC-SEN"},{"r":"2200517","n":"Rayyan Ahmed Saleemi","g":"Male","c":"RWANDC-SEN"},{"r":"2200530","n":"Arib Bajwa Qayyum","g":"Male","c":"RWANDC-SEN"},{"r":"2200538","n":"Aylin Amad","g":"Female","c":"RWANDC-SEN"},{"r":"2200546","n":"Zainah Ahsan","g":"Female","c":"RWANDC-SEN"},{"r":"2200577","n":"Abdullah Mahmood","g":"Male","c":"RWANDC-SEN"},{"r":"2200579","n":"Rabeea Irfan","g":"Female","c":"RWANDC-SEN"},{"r":"2200591","n":"Muhammad Hussain","g":"Male","c":"RWANDC-SEN"},{"r":"2200593","n":"Mohammad Arhab","g":"Male","c":"RWANDC-SEN"},{"r":"2200597","n":"Hussain Ahmad","g":"Male","c":"RWANDC-SEN"},{"r":"2200598","n":"Fabiha Bilal","g":"Female","c":"RWANDC-SEN"},{"r":"2200626","n":"Muhammad Khizar Abbas","g":"Male","c":"RWANDC-SEN"},{"r":"2200628","n":"Muhammad Abdullah Siddiqui","g":"Male","c":"RWANDC-SEN"},{"r":"2200652","n":"Hashir Kashif","g":"Male","c":"RWANDC-SEN"},{"r":"2200655","n":"Muhammad Ali Arslan","g":"Male","c":"RWANDC-SEN"},{"r":"2200660","n":"Muhammad Ahmed","g":"Male","c":"RWANDC-SEN"},{"r":"2200674","n":"Muhammad Essa Huzefa","g":"Male","c":"RWANDC-SEN"},{"r":"2200688","n":"Muhammad Salaar Yousaf","g":"Male","c":"RWANDC-SEN"},{"r":"2200689","n":"Abdullah Ahmad","g":"Male","c":"RWANDC-SEN"},{"r":"2200697","n":"Razan Butt","g":"Male","c":"RWANDC-SEN"},{"r":"2200698","n":"Muhammad Arsam Naveed","g":"Male","c":"RWANDC-SEN"},{"r":"2200708","n":"Muhammad Azan Ali","g":"Male","c":"RWANDC-SEN"},{"r":"2200719","n":"Azra","g":"Female","c":"RWANDC-SEN"},{"r":"2200724","n":"Muhammad Yosuf Nauman","g":"Male","c":"RWANDC-SEN"},{"r":"2200749","n":"Taimur Ali Mohammad","g":"Male","c":"RWANDC-SEN"},{"r":"2200771","n":"Ahmed Moeen","g":"Male","c":"RWANDC-SEN"},{"r":"2200772","n":"Abdullah Rizwan Chughtai","g":"Male","c":"RWANDC-SEN"},{"r":"2200773","n":"Muhammad Rayyan Khan","g":"Male","c":"RWANDC-SEN"},{"r":"2200775","n":"Ahmad Hassan Sial","g":"Male","c":"RWANDC-SEN"},{"r":"2200779","n":"Mohammad Shahwaiz Umair","g":"Male","c":"RWANDC-SEN"},{"r":"2200780","n":"Mohammad Zayyan","g":"Male","c":"RWANDC-SEN"},{"r":"2200781","n":"Hassan Ayub","g":"Male","c":"RWANDC-SEN"},{"r":"2200801","n":"Abdullah Chaudhry","g":"Male","c":"RWANDC-SEN"},{"r":"2200841","n":"M.Ibrahim Qamar","g":"Male","c":"RWANDC-SEN"},{"r":"2200842","n":"Muhammad Azlan","g":"Male","c":"RWANDC-SEN"},{"r":"2200109","n":"Muhammad Mustafa Usman","g":"Male","c":"RWANDC-SEN OLD"},{"r":"2200121","n":"Aahil Jamshed Cheema","g":"Male","c":"RWANDC-SEN OLD"},{"r":"2200131","n":"Ibrahim Nasir","g":"Male","c":"RWANDC-SEN OLD"},{"r":"2200144","n":"Haider Ali Khan","g":"Male","c":"RWANDC-SEN OLD"},{"r":"2200150","n":"Muhammad Shazayn Nauman","g":"Male","c":"RWANDC-SEN OLD"},{"r":"2200153","n":"Daud Javed","g":"Male","c":"RWANDC-SEN OLD"},{"r":"2200159","n":"Abdul Hadi Hammad","g":"Male","c":"RWANDC-SEN OLD"},{"r":"2200160","n":"Muhammad Rafay","g":"Male","c":"RWANDC-SEN OLD"},{"r":"2200168","n":"Filza Usman","g":"Female","c":"RWANDC-SEN OLD"},{"r":"2200417","n":"Muhammad Ibrahim","g":"Male","c":"RWANDC-SEN OLD"},{"r":"2200430","n":"Abdul Ahad","g":"Male","c":"RWANDC-SEN OLD"},{"r":"2200431","n":"Abdul Rehman","g":"Male","c":"RWANDC-SEN OLD"},{"r":"2200435","n":"M. Arham Rashid","g":"Male","c":"RWANDC-SEN OLD"},{"r":"2200465","n":"M.Mubeen Usman","g":"Male","c":"RWANDC-SEN OLD"},{"r":"2200506","n":"Ibrahim Akhtar","g":"Male","c":"RWANDC-SEN OLD"},{"r":"2200511","n":"Abdul Hadi Usman","g":"Male","c":"RWANDC-SEN OLD"},{"r":"2200542","n":"Hassan Zohaib","g":"Male","c":"RWANDC-SEN OLD"},{"r":"2200545","n":"Muhammad Abdullah Idrees","g":"Male","c":"RWANDC-SEN OLD"},{"r":"2200573","n":"Ayeza Waleed","g":"Female","c":"RWANDC-SEN OLD"},{"r":"2200580","n":"Muhammad Abdullah","g":"Male","c":"RWANDC-SEN OLD"},{"r":"2200583","n":"Zayd Bin Shahzad","g":"Male","c":"RWANDC-SEN OLD"},{"r":"2200612","n":"Muhammad Arham Junaid","g":"Male","c":"RWANDC-SEN OLD"},{"r":"2200642","n":"Zohaan Sherazi","g":"Male","c":"RWANDC-SEN OLD"},{"r":"2200692","n":"Rayan Khan","g":"Male","c":"RWANDC-SEN OLD"},{"r":"2200695","n":"Arham Amir","g":"Male","c":"RWANDC-SEN OLD"},{"r":"2200696","n":"M Muneeb Amir","g":"Male","c":"RWANDC-SEN OLD"},{"r":"2200732","n":"Momin Shami","g":"Male","c":"RWANDC-SEN OLD"},{"r":"2200736","n":"Taimoor Abubakar","g":"Male","c":"RWANDC-SEN OLD"},{"r":"2200738","n":"Muhammad Ali Zaidi","g":"Male","c":"RWANDC-SEN OLD"},{"r":"2200742","n":"Ibrahim Bilal","g":"Male","c":"RWANDC-SEN OLD"},{"r":"2200743","n":"Daneen Shahzad","g":"Female","c":"RWANDC-SEN OLD"},{"r":"2200747","n":"Muhammad Shahjahan Khan","g":"Male","c":"RWANDC-SEN OLD"},{"r":"2200291","n":"Meerub Zulfiqar Butt","g":"Male","c":"RWANDC-6 HOURS"},{"r":"2200623","n":"Lamia Muneeb","g":"Female","c":"BTEC L3 Business"},{"r":"2200690","n":"M Mahad Saeed","g":"Male","c":"BTEC L3 Business"},{"r":"2200712","n":"Fatima Abdul Hakeem","g":"Female","c":"BTEC L3 Business"},{"r":"2200713","n":"Noor ul Eman","g":"Female","c":"BTEC L3 Business"},{"r":"2200717","n":"Hafeez Ullah","g":"Male","c":"BTEC L3 Business"},{"r":"2200764","n":"Syed Abdur Rehman","g":"Male","c":"BTEC L3 Business"},{"r":"2200847","n":"Aansa Faisal","g":"Male","c":"BTEC L3 Business"},{"r":"2200850","n":"Muhammad Ibrahim Ahmed","g":"Male","c":"BTEC L3 Business"},{"r":"2200819","n":"Raid Ahmed","g":"Male","c":"BTEC L3 Fast"}];
+const CLASSES=["Day Care","Reception","PG-Blue","PG-SEN","KG-Blue","KG-Red","KG-SEN","Prep-Blue","Prep-Red","Prep-SEN","1-Blue","1-Red","1-SEN","2-Blue","2-Red","2-SEN","3-Blue","3-Red","3-SEN","4-Blue","4-Red","4-SEN","5-Blue","5-Red","5-SEN","6-Blue","7-Blue","7-Red","8-IScience","8-IBusiness","8I-SEN","9-I","9I Science","9I Business","10-I","10I Business","RWANDC-SEN","RWANDC-SEN OLD","RWANDC-3 HOURS","RWANDC-6 HOURS","RWAC","BTEC L3 Business","BTEC L3 Fast"];
+function seedStudents(force){
+  const have=new Set(db.students.map(x=>String(x.reg).toLowerCase())); let n=0;
+  SEED.forEach(r=>{ if(have.has(r.r.toLowerCase())) return; db.students.push({id:'seed'+r.r,reg:r.r,name:r.n,father:'',cls:r.c,sec:'',house:'',gender:r.g,dob:'',phone:'',addr:'',fee:'',rem:''}); n++; });
+  if(n) save(); return n;
+}
+if(!localStorage.getItem('cornerstone_seed_students_v1')){ seedStudents(); try{localStorage.setItem('cornerstone_seed_students_v1','1');}catch(e){} }
+const stById=id=>db.students.find(s=>s.id===id), bkById=id=>db.books.find(b=>b.id===id);
+const active=id=>db.loans.filter(l=>l.book===id&&!l.ret);
+const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x.toISOString().slice(0,10);};
+const empty=(n,t)=>`<tr class="empty-row"><td colspan="${n}">${t}</td></tr>`;
+const badge=f=>`<span class="hist-badge ${f==='Paid'?'in':f==='Unpaid'?'out':'mid'}">${f}</span>`;
+function dl(name,text,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click();}
+
+/* generic form modal */
+function openForm(title,fields,vals,cb){
+  fF=fields; fCb=cb; $('fTitle').textContent=title; $('fErr').style.display='none';
+  $('fBody').innerHTML=fields.map(f=>`<label>${f.l}</label>`+(f.t==='cover'?`<input type="file" id="f_${f.k}" accept="image/*"><img id="f_${f.k}_p" alt="" style="display:none;max-height:90px;margin-top:6px">`:f.t==='select'?`<select id="f_${f.k}">${f.o.map(o=>`<option value="${esc(o.v??o)}">${esc(o.n??o)}</option>`).join('')}</select>`:f.t==='textarea'?`<textarea id="f_${f.k}" rows="4"></textarea>`:`<input id="f_${f.k}" type="${f.t||'text'}">`)).join('');
+  fields.forEach(f=>{
+    if(f.t==='cover'){window._cov=vals[f.k]||'';const im=$('f_'+f.k+'_p');if(window._cov){im.src=window._cov;im.style.display='block';}return;}
+    $('f_'+f.k).value=vals[f.k]??f.d??'';
+  });
+  $('fOverlay').classList.add('open');
+}
+window.openForm=openForm;
+const closeForm=()=>$('fOverlay').classList.remove('open');
+function submitForm(){
+  const v={};
+  for(const f of fF){
+    v[f.k]=f.t==='cover'?(window._cov||''):$('f_'+f.k).value.trim();
+    if(f.r&&!v[f.k]){$('fErr').textContent=f.l.replace(' *','')+' is required.';$('fErr').style.display='block';return;}
+  }
+  const e=fCb(v);
+  if(e){$('fErr').textContent=e;$('fErr').style.display='block';return;}
+  closeForm(); save(); render();
+}
+
+/* Students */
+function stForm(s){
+  openForm(s?'Edit Student':'Add Student',[
+    {k:'reg',l:'Reg / Roll No *',r:1},{k:'name',l:'Student Name *',r:1},{k:'father',l:"Father's Name"},
+    {k:'cls',l:'Class',t:'select',o:CLASSES},{k:'sec',l:'Section'},{k:'house',l:'House'},{k:'gender',l:'Gender',t:'select',o:['Male','Female']},
+    {k:'dob',l:'Date of Birth',t:'date'},{k:'phone',l:'Parent Phone'},{k:'addr',l:'Address'},
+    {k:'fee',l:'Fee Status',t:'select',o:['Paid','Partial','Unpaid']},{k:'rem',l:'Remarks',t:'textarea'}
+  ],s||{fee:'Paid'},v=>{
+    if(db.students.some(x=>x!==s&&x.reg.toLowerCase()===v.reg.toLowerCase())) return 'This Reg No already exists.';
+    if(s) Object.assign(s,v); else db.students.push({id:uid(),...v});
+  });
+}
+/* Books */
+function bkForm(b){
+  openForm(b?'Edit Book':'Add Book',[
+    {k:'acc',l:'Accession No *',r:1},{k:'title',l:'Book Title *',r:1},{k:'author',l:'Author'},
+    {k:'cat',l:'Category / Subject'},{k:'shelf',l:'Shelf / Location'},{k:'copies',l:'Total Copies *',t:'number',r:1},{k:'cover',l:'Book Cover',t:'cover'}
+  ],b||{copies:1},v=>{
+    v.copies=parseInt(v.copies,10);
+    if(!(v.copies>=1)) return 'Copies must be at least 1.';
+    if(b&&v.copies<active(b.id).length) return 'Copies cannot be less than the books currently issued.';
+    if(db.books.some(x=>x!==b&&x.acc.toLowerCase()===v.acc.toLowerCase())) return 'This Accession No already exists.';
+    if(b) Object.assign(b,v); else db.books.push({id:uid(),...v});
+  });
+}
+function issueForm(bookId){
+  const bs=db.books.filter(b=>b.copies-active(b.id).length>0);
+  if(!db.students.length) return showToast('Add students first.');
+  if(!bs.length||(bookId&&!bs.some(b=>b.id===bookId))) return showToast('No copy available to issue.');
+  openForm('Issue Book',[
+    {k:'book',l:'Book',t:'select',o:bs.map(b=>({v:b.id,n:b.acc+' - '+b.title}))},
+    {k:'student',l:'Student',t:'select',o:db.students.map(s=>({v:s.id,n:s.reg+' - '+s.name+' ('+s.cls+')'}))},
+    {k:'date',l:'Issue Date',t:'date',d:todayISO()},{k:'days',l:'Days allowed',t:'number',d:14}
+  ],{book:bookId},v=>{
+    const d=v.date||todayISO();
+    db.loans.push({id:uid(),book:v.book,student:v.student,date:d,due:addDays(d,parseInt(v.days,10)||14)});
+    showToast('Book issued.');
+  });
+}
+/* Notes */
+function noteForm(n){
+  if(!db.books.length) return showToast('Add a book first.');
+  openForm(n?'Edit Note':'Add Book Note',[
+    {k:'book',l:'Book',t:'select',o:db.books.map(b=>({v:b.id,n:b.title}))},
+    {k:'page',l:'Page / Chapter'},{k:'text',l:'Note *',t:'textarea',r:1}
+  ],n||{},v=>{ if(n) Object.assign(n,v); else db.notes.push({id:uid(),at:Date.now(),...v}); });
+}
+
+function render(){
+  const L=db.students, q=$('stSearch').value.trim().toLowerCase(), c=$('stClass').value, today=todayISO();
+  $('stT').textContent=L.length; $('stM').textContent=L.filter(s=>s.gender==='Male').length;
+  $('stF').textContent=L.filter(s=>s.gender==='Female').length; $('stU').textContent=L.filter(s=>s.fee&&s.fee!=='Paid').length;
+  const rows=L.filter(s=>(!c||s.cls===c)&&(!q||[s.reg,s.name,s.father,s.phone].join(' ').toLowerCase().includes(q)))
+    .sort((a,b)=>CLASSES.indexOf(a.cls)-CLASSES.indexOf(b.cls)||a.name.localeCompare(b.name));
+  $('stBody').innerHTML=rows.length?rows.map(s=>`<tr><td><span class="code">${esc(s.reg)}</span></td><td title="${esc((s.addr||'')+' '+(s.rem||''))}">${esc(s.name)}</td><td>${esc(s.father||'')}</td><td>${esc(s.cls)}${s.sec?' - '+esc(s.sec):''}</td><td>${esc(s.gender||'')}</td><td>${esc(s.dob||'')}</td><td>${esc(s.phone||'')}</td><td>${s.fee?badge(s.fee):'-'}</td><td>${db.loans.filter(l=>l.student===s.id&&!l.ret).length}</td><td><div class="rowbtns"><button class="in" data-a="st-edit" data-id="${s.id}">Edit</button><button class="out" data-a="st-del" data-id="${s.id}">Delete</button></div></td></tr>`).join(''):empty(10,'No students found. Click "+ Add Student".');
+
+  const bq=$('bkSearch').value.trim().toLowerCase();
+  const bs=db.books.filter(b=>!bq||[b.acc,b.title,b.author,b.cat].join(' ').toLowerCase().includes(bq)).sort((a,b)=>a.title.localeCompare(b.title));
+  const out=db.loans.filter(l=>!l.ret);
+  $('lbT').textContent=db.books.length; $('lbC').textContent=db.books.reduce((a,b)=>a+b.copies,0);
+  $('lbI').textContent=out.length; $('lbO').textContent=out.filter(l=>l.due<today).length;
+  $('bkBody').innerHTML=bs.length?bs.map(b=>{const av=b.copies-active(b.id).length;return `<tr><td><span class="code">${esc(b.acc)}</span></td><td>${b.cover?`<img src="${b.cover}" alt="" style="width:34px;height:44px;object-fit:cover;vertical-align:middle;margin-right:8px;border:1px solid var(--rule)">`:''}${esc(b.title)}</td><td>${esc(b.author||'')}</td><td>${esc(b.cat||'')}</td><td>${esc(b.shelf||'')}</td><td>${b.copies}</td><td class="${av?'':'qty-low'}">${av}</td><td><div class="rowbtns"><button class="in" data-a="bk-issue" data-id="${b.id}">Issue</button><button style="background:var(--ink)" data-a="bk-edit" data-id="${b.id}">Edit</button><button class="out" data-a="bk-del" data-id="${b.id}">Delete</button></div></td></tr>`;}).join(''):empty(8,'No books found. Click "+ Add Book".');
+
+  const ls=[...db.loans].sort((a,b)=>(!!a.ret-!!b.ret)||b.date.localeCompare(a.date));
+  $('lnBody').innerHTML=ls.length?ls.map(l=>{
+    const b=bkById(l.book), s=stById(l.student), late=!l.ret&&l.due<today, n=Math.round((new Date(today)-new Date(l.due))/864e5);
+    return `<tr style="${l.ret?'opacity:.6':''}"><td>${esc(b?b.title:'(deleted)')}</td><td>${esc(s?s.name+' ('+s.cls+')':'(deleted)')}</td><td>${l.date}</td><td>${l.due}</td><td class="${late?'qty-low':''}">${l.ret?'Returned '+l.ret:late?'Overdue '+n+' day(s)':'Issued'}</td><td>${l.ret?'':`<div class="rowbtns"><button class="in" data-a="ln-ret" data-id="${l.id}">Return</button></div>`}</td></tr>`;
+  }).join(''):empty(6,'No books issued yet.');
+
+  const nq=$('ntSearch').value.trim().toLowerCase();
+  const ns=[...db.notes].reverse().filter(n=>{const b=bkById(n.book);return !nq||((b?b.title:'')+' '+n.text+' '+(n.page||'')).toLowerCase().includes(nq);});
+  $('ntList').innerHTML=ns.length?ns.map(n=>{const b=bkById(n.book);return `<div class="hist-item"><div><div style="font-weight:600">${esc(b?b.title:'(deleted book)')}${n.page?' <span class="hist-meta">&middot; '+esc(n.page)+'</span>':''}</div><div style="margin-top:6px;white-space:pre-wrap">${esc(n.text)}</div><div class="hist-meta">${new Date(n.at).toLocaleDateString()}</div></div><div class="rowbtns noprint"><button class="in" data-a="nt-edit" data-id="${n.id}">Edit</button><button class="out" data-a="nt-del" data-id="${n.id}">Delete</button></div></div>`;}).join(''):'<div class="hist-item" style="justify-content:center;font-style:italic;color:var(--ink-soft)">No notes yet. Click "+ Add Note".</div>';
+}
+
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-a]'); if(!b) return;
+  const id=b.dataset.id, a=b.dataset.a;
+  if(a==='st-edit') stForm(stById(id));
+  else if(a==='st-del'){
+    const s=stById(id);
+    if(db.loans.some(l=>l.student===id&&!l.ret)) return showToast('Student still has books issued.');
+    if(confirm('Delete '+s.name+'?')){db.students=db.students.filter(x=>x.id!==id);db.loans=db.loans.filter(l=>l.student!==id);save();render();}
+  }
+  else if(a==='bk-edit') bkForm(bkById(id));
+  else if(a==='bk-issue') issueForm(id);
+  else if(a==='bk-del'){
+    const k=bkById(id);
+    if(active(id).length) return showToast('This book is currently issued.');
+    if(confirm('Delete "'+k.title+'" and its notes?')){db.books=db.books.filter(x=>x.id!==id);db.loans=db.loans.filter(l=>l.book!==id);db.notes=db.notes.filter(n=>n.book!==id);save();render();}
+  }
+  else if(a==='ln-ret'){db.loans.find(x=>x.id===id).ret=todayISO();save();render();showToast('Book returned.');}
+  else if(a==='nt-edit') noteForm(db.notes.find(n=>n.id===id));
+  else if(a==='nt-del'){if(confirm('Delete this note?')){db.notes=db.notes.filter(n=>n.id!==id);save();render();}}
+});
+
+$('stClass').innerHTML='<option value="">All classes</option>'+CLASSES.map(c=>`<option>${c}</option>`).join('');
+['stSearch','bkSearch','ntSearch'].forEach(i=>$(i).addEventListener('input',render));
+$('stClass').addEventListener('change',render);
+$('stSeed').onclick=()=>{const n=seedStudents();render();showToast(n?n+' students added.':'All 508 students are already added.');};
+$('stAdd').onclick=()=>stForm(); $('bkAdd').onclick=()=>bkForm(); $('bkIssue').onclick=()=>issueForm(); $('ntAdd').onclick=()=>noteForm();
+$('fSave').onclick=submitForm; $('fCancel').onclick=closeForm; $('fClose').onclick=closeForm;
+$('stCsv').onclick=()=>{
+  const H=['Reg No','Name','Father','Class','Section','Gender','DOB','Phone','Address','Fee','Remarks'], F=['reg','name','father','cls','sec','gender','dob','phone','addr','fee','rem'];
+  const q=x=>'"'+String(x||'').replace(/"/g,'""')+'"';
+  dl('students.csv',[H.map(q).join(',')].concat(db.students.map(s=>F.map(k=>q(s[k])).join(','))).join('\n'),'text/csv');
+};
+const KEYS=['cornerstone_store_docs_v1','cornerstone_ledger_items_v1','cornerstone_ledger_tx_v1','cornerstone_ledger_issues_v1','cornerstone_ledger_sicounter_v1',K];
+$('bxExport').onclick=()=>{const o={};KEYS.forEach(k=>o[k]=localStorage.getItem(k));dl('cornerstone-backup-'+todayISO()+'.json',JSON.stringify(o),'application/json');};
+$('bxImport').onchange=e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{try{const o=JSON.parse(r.result); if(!confirm('This replaces all current data. Continue?')) return; KEYS.forEach(k=>{if(o[k]!=null) localStorage.setItem(k,o[k]);}); location.reload();}catch(x){showToast('Invalid backup file.');}};
+  r.readAsText(f);
+};
+
+function readCover(f,cb){
+  if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,240/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);cb(c.toDataURL('image/jpeg',0.7));};im.src=r.result;};
+  r.readAsDataURL(f);
+}
+$('fBody').addEventListener('change',e=>{
+  if(e.target.type!=='file') return;
+  readCover(e.target.files[0],d=>{window._cov=d;const im=$(e.target.id+'_p');im.src=d;im.style.display='block';});
+});
+/* Add Item modal: uniform size / book name + cover */
+const toggleExtra=()=>{const c=$('newCategory').value.toLowerCase(),nb=/note\s*-?\s*books?|\bcop(y|ies)\b/.test(c),bk=/\bbooks?\b/.test(c)&&!nb;$('uniWrap').style.display=c.includes('uniform')?'block':'none';$('nbWrap').style.display=nb?'block':'none';$('bookWrap').style.display=bk?'block':'none';};
+$('newCategory').addEventListener('input',toggleExtra); $('newCategory').addEventListener('change',toggleExtra);
+$('newBookName').addEventListener('input',()=>{$('newName').value=$('newBookName').value;});
+$('newCover').addEventListener('change',e=>readCover(e.target.files[0],d=>{window._newCover=d;const im=$('newCoverPrev');im.src=d;im.style.display='block';}));
+const _open=window.openAddModal;
+window.openAddModal=function(){_open();window._newCover='';['newSize','newBookName','newCover','newNbType','newNbPages'].forEach(i=>$(i).value='');$('newCoverPrev').style.display='none';toggleExtra();};
+/* Store Issue: editable description without losing focus */
+const SIF={'si-desc':'name','si-unit':'unit','si-purpose':'purpose','si-costid':'costId','si-costdesc':'costDesc','si-allid':'allId'};
+$('siBody').addEventListener('input',e=>{
+  const tr=e.target.closest('tr'); if(!tr) return;
+  e.stopPropagation();
+  const row=siRows[parseInt(tr.dataset.idx,10)], cl=e.target.classList;
+  for(const k in SIF) if(cl.contains(k)) row[SIF[k]]=e.target.value;
+  if(cl.contains('si-issqty')) row.issQty=parseFloat(e.target.value)||0;
+  if(cl.contains('si-issrate')) row.issRate=parseFloat(e.target.value)||0;
+  row.total=(row.issQty||0)*(row.issRate||0);
+  tr.querySelector('.si-total').value=fmtNum(row.total);
+  updateSiGrandTotal();
+},true);
+$('siBody').addEventListener('change',e=>{
+  if(!e.target.classList.contains('si-desc')) return;
+  const tr=e.target.closest('tr'), row=siRows[parseInt(tr.dataset.idx,10)], v=e.target.value.trim().toLowerCase();
+  const it=state.items.find(i=>i.name.toLowerCase()===v);
+  if(it){row.code=it.code;row.name=it.name;row.unit=it.unit;row.avail=it.qty;row.issRate=it.rate;row.total=(row.issQty||0)*it.rate;if(parseInt(tr.dataset.idx,10)===siRows.length-1) siRows.push(newBlankSiRow());renderSiRows();}
+});
+$('ledgerBody').addEventListener('click',e=>{
+  const b=e.target.closest('button[data-act="edit"]'); if(!b) return; e.stopImmediatePropagation();
+  const it=state.items.find(i=>i.id===parseInt(b.dataset.id,10)); if(!it) return;
+  openForm('Edit Item',[{k:'code',l:'Item Code *',r:1},{k:'name',l:'Item Name *',r:1},{k:'unit',l:'Unit *',r:1},{k:'category',l:'Category'},{k:'store',l:'Store'},{k:'rate',l:'Average Rate',t:'number'}],it,v=>{
+    if(state.items.some(x=>x!==it&&x.code.toLowerCase()===v.code.toLowerCase())) return 'Item code already exists.';
+    Object.assign(it,{code:v.code,name:v.name,unit:v.unit,category:v.category||'Uncategorized',store:v.store||it.store,rate:parseFloat(v.rate)||0});
+    saveState(); populateFilters(); renderAll();
+  });
+},true);
+render();
+})();
+</script>
+<script>
+(function(){
+const $=id=>document.getElementById(id), esc=escapeHtml, K='cornerstone_store_docs_v1';
+let S={docs:[],cons:[],n:{}};
+try{const x=localStorage.getItem(K); if(x) S=Object.assign(S,JSON.parse(x));}catch(e){}
+const sv=()=>{try{localStorage.setItem(K,JSON.stringify(S));}catch(e){showToast('Save failed');}};
+const T={PO:{n:'Purchase Orders',s:'Purchase Order',p:'Supplier'},GRN:{n:'Goods Receipts',s:'Goods Receipt (GRN)',p:'Supplier'},TO:{n:'Transfer Out',s:'Transfer Out',p:'Receiving Store'},TI:{n:'Transfer In',s:'Transfer In',p:'Issuing Store'},ADJ:{n:'Store Adj.',s:'Store Adjustment',p:'Reason'},SL:{n:'Store Sales',s:'Store Sale',p:'Sold To'}};
+const DIR={GRN:1,TI:1,ADJ:1,TO:-1,SL:-1};
+let editDoc=null, cur='PO', dType='PO', dr=[], linkPO=null, lastRep=null;
+const item=c=>state.items.find(i=>i.code.toLowerCase()===String(c||'').trim().toLowerCase());
+const blank=()=>({code:'',name:'',unit:'',qty:0,rate:0});
+const dTot=d=>d.rows.reduce((a,r)=>a+r.qty*r.rate,0);
+const sgn=x=>x.type==='in'?1:-1;
+const empty=(n,t)=>`<tr class="empty-row"><td colspan="${n}">${t}</td></tr>`;
+function dl(name,text,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click();}
+
+function apply(d,sign){
+  d.rows.forEach(r=>{
+    const it=item(r.code); if(!it) return;
+    const q=DIR[d.type]*sign*r.qty; if(!q) return;
+    if(d.type==='GRN'&&sign>0&&r.rate>0&&it.qty+r.qty>0) it.rate=(it.qty*it.rate+r.qty*r.rate)/(it.qty+r.qty);
+    it.qty+=q;
+    state.tx.push({itemId:it.id,itemName:it.name,type:q>0?'in':'out',qty:Math.abs(q),reason:(sign>0?'':'Cancelled ')+d.no,at:Date.now()});
+  });
+  saveState();
+}
+
+/* ---------- document editor ---------- */
+function openDoc(t,pre){
+  dType=t; dr=pre?pre.rows.map(r=>({...r})):[blank()]; linkPO=pre&&pre.po||null; editDoc=pre&&pre.edit||null;
+  $('dTitle').textContent=(editDoc?'Edit ':'New ')+T[t].s; $('dDate').value=editDoc?editDoc.date:todayISO(); $('dNo').value=editDoc?editDoc.no:'(auto)';
+  $('dParty').value=pre?pre.party:''; $('dRem').value=editDoc?editDoc.rem||'':''; $('dPartyL').textContent=T[t].p; $('dErr').style.display='none';
+  $('dPartyList').innerHTML=[...new Set(['Canal Garden Campus','Global Campus',...S.docs.map(d=>d.party).filter(Boolean)])].map(x=>`<option value="${esc(x)}">`).join('');
+  drawRows(); $('dOverlay').classList.add('open');
+}
+const closeDoc=()=>{$('dOverlay').classList.remove('open');editDoc=null;};
+const drawTot=()=>{$('dTotal').textContent=fmtMoney(dr.reduce((a,r)=>a+r.qty*r.rate,0));};
+function drawRows(){
+  $('dRows').innerHTML=dr.map((r,i)=>`<tr data-i="${i}"><td><input class="d-code" list="itemCodeList" value="${esc(r.code)}"></td><td><input class="d-name" list="itemNameList" value="${esc(r.name)}" placeholder="Auto or type"></td><td><input class="d-unit" value="${esc(r.unit)}"></td><td><input class="d-av" readonly value="${(item(r.code)||{}).qty!==undefined?fmtNum(item(r.code).qty):''}"></td><td><input class="d-qty" type="number" step="0.01" value="${r.qty||''}"></td><td><input class="d-rate" type="number" step="0.01" value="${r.rate||''}"></td><td><input class="d-tot" readonly value="${fmtNum(r.qty*r.rate)}"></td><td>${dr.length>1?`<button type="button" class="si-remove-btn" data-i="${i}">&times;</button>`:''}</td></tr>`).join('');
+  drawTot();
+}
+function fill(r,it){r.code=it.code;r.name=it.name;r.unit=it.unit;r.rate=(dType==='SL'&&it.sale)?it.sale:it.rate;}
+$('dRows').addEventListener('input',e=>{
+  const tr=e.target.closest('tr'); if(!tr) return; const r=dr[+tr.dataset.i], c=e.target.classList;
+  if(c.contains('d-code')) r.code=e.target.value; if(c.contains('d-name')) r.name=e.target.value; if(c.contains('d-unit')) r.unit=e.target.value;
+  if(c.contains('d-qty')) r.qty=parseFloat(e.target.value)||0; if(c.contains('d-rate')) r.rate=parseFloat(e.target.value)||0;
+  tr.querySelector('.d-tot').value=fmtNum(r.qty*r.rate); drawTot();
+});
+$('dRows').addEventListener('change',e=>{
+  const tr=e.target.closest('tr'); if(!tr) return; const i=+tr.dataset.i, r=dr[i], c=e.target.classList;
+  const it=c.contains('d-code')?item(e.target.value):c.contains('d-name')?state.items.find(x=>x.name.toLowerCase()===e.target.value.trim().toLowerCase()):null;
+  if(it){fill(r,it); if(i===dr.length-1) dr.push(blank()); drawRows();}
+});
+$('dRows').addEventListener('click',e=>{const b=e.target.closest('.si-remove-btn'); if(b){dr.splice(+b.dataset.i,1);drawRows();}});
+$('dAddRow').onclick=()=>{dr.push(blank());drawRows();};
+$('dClose').onclick=closeDoc; $('dCancel').onclick=closeDoc;
+$('dSave').onclick=()=>{
+  const err=m=>{$('dErr').textContent=m;$('dErr').style.display='block';};
+  const rows=dr.filter(r=>(r.code||r.name)&&r.qty);
+  const t=dType, use={};
+  if(!rows.length) return err('Add at least one item with a quantity.');
+  for(const r of rows){
+    if(r.qty<0&&t!=='ADJ') return err('Quantity must be positive.');
+    if(t!=='PO'){const it=item(r.code); if(!it) return err('Item code "'+r.code+'" is not in the stock ledger. Add the item first.'); use[it.id]=(use[it.id]||0)+r.qty;}
+  }
+  if(editDoc&&editDoc.posted){
+    const net={};
+    editDoc.rows.forEach(r=>{const it=item(r.code); if(it) net[it.id]=(net[it.id]||0)-DIR[t]*r.qty;});
+    rows.forEach(r=>{const it=item(r.code); if(it) net[it.id]=(net[it.id]||0)+DIR[t]*r.qty;});
+    for(const id in net){const it=state.items.find(i=>String(i.id)===id); if(it.qty+net[id]<0) return err('Stock of '+it.name+' would go below zero.');}
+  }
+  if(!editDoc&&(t==='TO'||t==='SL'||t==='ADJ')) for(const id in use){
+    const it=state.items.find(i=>String(i.id)===id), out=t==='ADJ'?-use[id]:use[id];
+    if(out>it.qty) return err('Not enough stock for '+it.name+' (available '+fmtNum(it.qty)+').');
+  }
+  if(editDoc){
+    const ed=editDoc;
+    if(ed.posted) apply(ed,-1);
+    Object.assign(ed,{date:$('dDate').value||todayISO(),party:$('dParty').value.trim(),rem:$('dRem').value.trim(),rows:rows.map(r=>({...r}))});
+    if(ed.posted) apply(ed,1);
+    closeDoc(); sv(); renderDocs(); renderAll(); showToast(ed.no+' updated.'); return;
+  }
+  const n=(S.n[t]||0)+1; S.n[t]=n; const d=new Date();
+  const doc={id:Date.now()+'-'+n,type:t,no:t+d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+String(n).padStart(4,'0'),date:$('dDate').value||todayISO(),party:$('dParty').value.trim(),rem:$('dRem').value.trim(),rows:rows.map(r=>({...r})),status:(t==='PO'||t==='TO'||t==='TI')?'Pending':'Posted',at:Date.now()};
+  if(t==='GRN'||t==='TO'||t==='ADJ'||t==='SL'){apply(doc,1);doc.posted=true;}
+  if(linkPO){const po=S.docs.find(x=>x.id===linkPO); if(po) po.status='Received';}
+  S.docs.push(doc); sv(); closeDoc(); renderDocs(); renderAll(); showToast(doc.no+' saved.');
+};
+
+/* ---------- list ---------- */
+function renderDocs(){
+  $('dTypes').innerHTML=Object.keys(T).map(k=>`<div class="pill ${k===cur?'active':''}" data-t="${k}">${T[k].n}</div>`).join('');
+  $('dPartyH').textContent=T[cur].p; $('dSale').style.display=cur==='SL'?'':'none';
+  const sel=$('dStatus');
+  if(sel.dataset.t!==cur){sel.innerHTML='<option value="">All status</option>'+({PO:['Pending','Received'],TO:['Pending','Completed'],TI:['Pending','Completed']}[cur]||['Posted']).map(x=>`<option>${x}</option>`).join('');sel.dataset.t=cur;}
+  const q=$('dSearch').value.trim().toLowerCase(), st=sel.value;
+  const L=S.docs.filter(d=>d.type===cur&&(!st||d.status===st)&&(!q||(d.no+' '+(d.party||'')+' '+d.rows.map(r=>r.name+' '+r.code).join(' ')).toLowerCase().includes(q))).sort((a,b)=>b.at-a.at);
+  $('dBody').innerHTML=L.length?L.map(d=>{
+    const pend=d.status==='Pending', act=cur==='PO'&&pend?'<button class="in" data-d="grn" data-id="'+d.id+'">Receive</button>':cur==='TI'&&pend?'<button class="in" data-d="recv" data-id="'+d.id+'">Receive</button>':cur==='TO'&&pend?'<button class="in" data-d="done" data-id="'+d.id+'">Complete</button>':'';
+    return `<tr><td><span class="code">${d.no}</span></td><td>${d.date}</td><td>${esc(d.party||'')}</td><td>${d.rows.length}</td><td>${fmtMoney(dTot(d))}</td><td><span class="hist-badge ${pend?'mid':'in'}">${d.status}</span></td><td><div class="rowbtns">${act}<button style="background:var(--gold)" data-d="edit" data-id="${d.id}">Edit</button><button style="background:var(--ink)" data-d="print" data-id="${d.id}">Print</button><button class="out" data-d="del" data-id="${d.id}">Delete</button></div></td></tr>`;
+  }).join(''):empty(7,'No records. Click "+ New".');
+}
+function printDoc(d){
+  const w=window.open('','_blank'); if(!w) return showToast('Allow pop-ups to print.');
+  w.document.write(`<!DOCTYPE html><html><head><title>${d.no}</title><style>body{font-family:Georgia,serif;padding:20px}table{width:100%;border-collapse:collapse;margin-top:10px}th,td{border:1px solid #999;padding:6px;font-size:12px}th{background:#233C2C;color:#fff}</style></head><body><h2>Cornerstone Global Campus - ${T[d.type].s}</h2><p><b>No:</b> ${d.no} | <b>Date:</b> ${d.date} | <b>${T[d.type].p}:</b> ${esc(d.party||'-')} | <b>Status:</b> ${d.status}</p><table><thead><tr><th>#</th><th>Code</th><th>Description</th><th>Unit</th><th>Qty</th><th>Rate</th><th>Total</th></tr></thead><tbody>${d.rows.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.code)}</td><td>${esc(r.name)}</td><td>${esc(r.unit)}</td><td>${r.qty}</td><td>${r.rate}</td><td>${r.qty*r.rate}</td></tr>`).join('')}</tbody></table><p><b>Total: ${fmtMoney(dTot(d))}</b></p>${d.rem?'<p>Remarks: '+esc(d.rem)+'</p>':''}</body></html>`);
+  w.document.close(); setTimeout(()=>w.print(),300);
+}
+function delDoc(d){
+  if(!confirm('Delete '+d.no+'?')) return;
+  if(d.posted){
+    if(DIR[d.type]>0) for(const r of d.rows){const it=item(r.code); if(it&&it.qty<r.qty) return showToast('Cannot delete: stock of '+it.name+' is already used.');}
+    apply(d,-1);
+  }
+  S.docs=S.docs.filter(x=>x!==d); sv(); renderDocs(); renderAll();
+}
+
+/* ---------- Consumption setup ---------- */
+function consForm(c){
+  window.openForm(c?'Edit Consumption Setup':'Add Consumption Setup',[
+    {k:'cost',l:'Store Cost ID *',r:1},{k:'cat',l:'Item Category',t:'select',o:ERPCATS},{k:'wh',l:'Warehouse ID'},{k:'br',l:'LOC / Branch Code'},
+    {k:'nom',l:'Nominal Account'},{k:'sub',l:'Sub Account'},{k:'acc',l:'Acc. Cost Center'}
+  ],c||{},v=>{if(c) Object.assign(c,v); else S.cons.push({id:Date.now()+'',at:Date.now(),...v}); sv(); renderCons();});
+}
+function renderCons(){
+  $('cBody').innerHTML=S.cons.length?S.cons.map(c=>`<tr><td>${esc(c.cost)}</td><td>${esc(c.cat||'')}</td><td>${esc(c.wh||'')}</td><td>${esc(c.br||'')}</td><td>${esc(c.nom||'')}</td><td>${esc(c.sub||'')}</td><td>${esc(c.acc||'')}</td><td>${new Date(c.at).toLocaleDateString()}</td><td><div class="rowbtns"><button class="in" data-c="edit" data-id="${c.id}">Edit</button><button class="out" data-c="del" data-id="${c.id}">Delete</button></div></td></tr>`).join(''):empty(9,'No setup yet.');
+}
+
+/* ---------- Reports ---------- */
+function repCats(){
+  const v=$('rCat').value;
+  $('rCat').innerHTML='<option value="">All categories</option>'+[...new Set(state.items.map(i=>i.category))].sort().map(c=>`<option value="${esc(c)}">${esc(shortCat(c))}</option>`).join('');
+  $('rCat').value=v;
+}
+function runReport(){
+  const ty=$('rType').value, cat=$('rCat').value, from=$('rFrom').value, to=$('rTo').value||todayISO();
+  const f0=from?new Date(from+'T00:00:00').getTime():0, t1=new Date(to+'T23:59:59').getTime();
+  const inR=d=>(!from||d>=from)&&d<=to; let title='',h=[],rows=[];
+  if(ty==='items'){
+    title='Items'; h=['Code','Item','Category','Store','Unit','Balance','Avg Rate','Value'];
+    rows=state.items.filter(i=>!cat||i.category===cat).map(i=>[i.code,i.name,shortCat(i.category),i.store,i.unit,fmtNum(i.qty),fmtNum(i.rate),fmtMoney(i.qty*i.rate)]);
+  }else if(ty==='status'){
+    title='Stock Status as on '+to; h=['Code','Item','Category','Unit','Balance','Rate','Value']; let tv=0;
+    rows=state.items.filter(i=>!cat||i.category===cat).map(i=>{const b=i.qty-state.tx.filter(x=>x.itemId===i.id&&x.at>t1).reduce((a,x)=>a+sgn(x)*x.qty,0);tv+=b*i.rate;return [i.code,i.name,shortCat(i.category),i.unit,fmtNum(b),fmtNum(i.rate),fmtMoney(b*i.rate)];});
+    rows.push(['','TOTAL','','','','',fmtMoney(tv)]);
+  }else if(ty==='ledger'){
+    const it=item($('rItem').value); if(!it) return showToast('Enter a valid item code for Item Ledger.');
+    title='Item Ledger: '+it.name+' ('+it.code+')'; h=['Date','Reference','In','Out','Balance'];
+    const tx=state.tx.filter(x=>x.itemId===it.id); let bal=it.qty-tx.reduce((a,x)=>a+sgn(x)*x.qty,0)+tx.filter(x=>x.at<f0).reduce((a,x)=>a+sgn(x)*x.qty,0);
+    rows=[['','Opening balance','','',fmtNum(bal)]];
+    tx.filter(x=>x.at>=f0&&x.at<=t1).forEach(x=>{bal+=sgn(x)*x.qty;rows.push([new Date(x.at).toLocaleDateString(),x.reason||'',x.type==='in'?fmtNum(x.qty):'',x.type==='out'?fmtNum(x.qty):'',fmtNum(bal)]);});
+  }else if(ty==='consumption'){
+    title='Consumption '+(from?from+' to ':'up to ')+to; h=['Code','Item','Category','Qty','Value']; const agg={};
+    state.issues.filter(d=>inR(d.date)).forEach(d=>d.rows.forEach(r=>{const it=item(r.code)||{},k=r.code||r.name,a=agg[k]||(agg[k]={code:r.code,name:r.name||it.name,cat:it.category,qty:0,val:0});a.qty+=r.issQty;a.val+=r.issQty*r.issRate;}));
+    rows=Object.values(agg).filter(a=>!cat||a.cat===cat).map(a=>[a.code,a.name,a.cat?shortCat(a.cat):'',fmtNum(a.qty),fmtMoney(a.val)]);
+  }else if(ty==='issues'){
+    title='Store Issue'; h=['SI No','Date','Department','Store','Items','Total'];
+    rows=state.issues.filter(d=>inR(d.date)).map(d=>[d.siNo,d.date,d.dept,d.store,d.rows.length,fmtMoney(d.total)]);
+  }else if(ty==='ssale'){
+    title='Student Sale'; h=['SS No','Date','Student ID','Student Name','Class','Charge','Total'];
+    rows=S.ss.filter(d=>inR(d.date)).map(d=>[d.no,d.date,d.sid,d.name,d.cls,d.charge?'Yes':'No',fmtMoney(d.total)]);
+  }else if(ty==='issuedto'||ty==='issuedsum'){
+    const w=$('rWho').value.trim().toLowerCase();
+    const L=state.issues.filter(d=>inR(d.date)&&(!w||((d.to||'')+' '+(d.dept||'')).toLowerCase().includes(w)));
+    if(ty==='issuedto'){
+      title='Issued To - Details'; h=['Date','SI No','Issued To','Department','Code','Item','Qty','Rate','Value']; rows=[];
+      L.forEach(d=>d.rows.forEach(r=>rows.push([d.date,d.siNo,d.to||'(not specified)',d.dept||'',r.code,r.name,fmtNum(r.issQty),fmtNum(r.issRate),fmtMoney(r.issQty*r.issRate)])));
+    }else{
+      title='Issued To - Summary'; h=['Issued To','Department','Issues','Total Qty','Total Value']; const g={};
+      L.forEach(d=>{const k=(d.to||'(not specified)')+'|'+(d.dept||''),a=g[k]||(g[k]={to:d.to||'(not specified)',dept:d.dept||'',n:0,q:0,v:0});a.n++;d.rows.forEach(r=>{a.q+=r.issQty;a.v+=r.issQty*r.issRate;});});
+      rows=Object.values(g).sort((a,b)=>a.to.localeCompare(b.to)).map(a=>[a.to,a.dept,a.n,fmtNum(a.q),fmtMoney(a.v)]);
+    }
+  }else{
+    const t=ty==='grn'?'GRN':'SL'; title=ty==='grn'?'GRN':'Store Sale'; h=['No','Date',T[t].p,'Items','Total'];
+    rows=S.docs.filter(d=>d.type===t&&inR(d.date)).map(d=>[d.no,d.date,d.party||'',d.rows.length,fmtMoney(dTot(d))]);
+  }
+  lastRep={title,h,rows};
+  $('rOut').innerHTML=`<h3 class="sec">${esc(title)}</h3><div class="ledger-wrap"><div class="table-scroll"><table><thead><tr>${h.map(x=>`<th>${x}</th>`).join('')}<th style="width:1px"></th></tr></thead><tbody>${rows.length?rows.map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join('')}<td></td></tr>`).join(''):empty(h.length+1,'No data for these filters.')}</tbody></table></div></div>`;
+}
+
+/* ---------- events ---------- */
+document.addEventListener('click',e=>{
+  const p=e.target.closest('.pill'); if(p){cur=p.dataset.t;renderDocs();return;}
+  const b=e.target.closest('[data-d],[data-c]'); if(!b) return; const id=b.dataset.id;
+  if(b.dataset.c){
+    const c=S.cons.find(x=>x.id===id);
+    if(b.dataset.c==='edit') consForm(c); else if(confirm('Delete this setup?')){S.cons=S.cons.filter(x=>x!==c);sv();renderCons();}
+    return;
+  }
+  const d=S.docs.find(x=>x.id===id), a=b.dataset.d;
+  if(a==='print') printDoc(d);
+  else if(a==='edit') openDoc(d.type,{rows:d.rows,party:d.party,edit:d});
+  else if(a==='del') delDoc(d);
+  else if(a==='grn') openDoc('GRN',{rows:d.rows,party:d.party,po:d.id});
+  else if(a==='recv'){apply(d,1);d.posted=true;d.status='Completed';sv();renderDocs();renderAll();showToast('Stock received.');}
+  else if(a==='done'){d.status='Completed';sv();renderDocs();}
+});
+$('dNew').onclick=()=>openDoc(cur);
+$('dSale').onclick=()=>{
+  if(!state.items.length) return showToast('No items in stock.');
+  window.openForm('Set Sale Rate',[{k:'code',l:'Item',t:'select',o:state.items.map(i=>({v:i.code,n:i.code+' - '+i.name}))},{k:'rate',l:'Sale Rate *',t:'number',r:1}],{},v=>{const it=item(v.code);it.sale=parseFloat(v.rate)||0;saveState();showToast('Sale rate set for '+it.name);});
+};
+$('dSearch').addEventListener('input',renderDocs); $('dStatus').addEventListener('change',renderDocs);
+$('cAdd').onclick=()=>consForm();
+$('rRun').onclick=runReport; $('rCat').addEventListener('focus',repCats);
+$('rPrint').onclick=()=>window.print();
+$('rCsv').onclick=()=>{
+  if(!lastRep) return showToast('Run a report first.');
+  const q=x=>'"'+String(x==null?'':x).replace(/"/g,'""')+'"';
+  dl(lastRep.title.replace(/\W+/g,'_')+'.csv',[lastRep.h.map(q).join(',')].concat(lastRep.rows.map(r=>r.map(q).join(','))).join('\n'),'text/csv');
+};
+const fillTo=()=>{$('siToList').innerHTML=[...new Set(state.issues.flatMap(d=>[d.to,d.dept]).filter(Boolean))].map(x=>`<option value="${esc(x)}">`).join('');};
+$('siTo').addEventListener('focus',fillTo); $('rWho').addEventListener('focus',fillTo); fillTo();
+['siRefresh','siCancel'].forEach(i=>$(i).addEventListener('click',()=>{$('siTo').value='';}));
+/* ---------- Student Sale (SS) ---------- */
+S.ss=S.ss||[];
+const stuList=()=>{try{return JSON.parse(localStorage.getItem('cornerstone_school_v1')||'{}').students||[];}catch(e){return [];}};
+let ss={rows:[],cm:[]}, editSS=null;
+const ssA=r=>{const a=r.qty*r.rate,d=a*r.disc/100,g=(a-d)*r.gst/100;return {a,d,g,t:a-d+g};};
+function ssTot(){const t={iv:0,ds:0,gs:0,tt:0};ss.rows.forEach(r=>{const x=ssA(r);t.iv+=x.a;t.ds+=x.d;t.gs+=x.g;t.tt+=x.t;});return t;}
+function ssDraw(){
+  $('ssRows').innerHTML=ss.rows.length?ss.rows.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.code)}</td><td>${esc(r.name)}</td><td>${esc(r.unit)}</td><td>${fmtNum(r.qty)}</td><td>${fmtNum(r.avg)}</td><td>${fmtNum(r.rate)}</td><td>${r.disc}</td><td>${r.gst}</td><td>${fmtNum(ssA(r).t)}</td><td><button type="button" class="si-remove-btn" data-ssdel="${i}">&times;</button></td></tr>`).join(''):empty(11,'No items added.');
+  const t=ssTot(); $('ssIV').textContent=fmtNum(t.iv); $('ssDS').textContent=fmtNum(t.ds); $('ssGS').textContent=fmtNum(t.gs); $('ssTT').textContent=fmtNum(t.tt);
+  $('ssCmBody').innerHTML=ss.cm.length?ss.cm.map(c=>`<tr><td>${new Date(c.at).toLocaleString()}</td><td>${esc(c.user)}</td><td>${esc(c.level)}</td><td>${esc(c.text)}</td></tr>`).join(''):empty(4,'No comments.');
+}
+const ssCalc=()=>{$('ssAmt').value=fmtNum(ssA({qty:parseFloat($('ssQty').value)||0,rate:parseFloat($('ssRate').value)||0,disc:parseFloat($('ssDisc').value)||0,gst:parseFloat($('ssGst').value)||0}).t);};
+function ssFill(it){$('ssCode').value=it.code;$('ssDesc').value=it.name;$('ssUnit').value=it.unit;$('ssAv').value=fmtNum(it.qty);$('ssAvg').value=fmtNum(it.rate);$('ssRate').value=it.sale||it.rate;ssCalc();}
+function ssLookup(){
+  const id=$('ssSid').value.trim().toLowerCase(); if(!id) return;
+  const st=stuList().find(x=>String(x.reg).toLowerCase()===id);
+  if(!st){['ssName','ssFather','ssHouse','ssStatus','ssClass'].forEach(i=>$(i).value='');return showToast('Student ID not found in Students tab.');}
+  $('ssName').value=st.name; $('ssFather').value=st.father||''; $('ssHouse').value=st.house||''; $('ssStatus').value='Active'; $('ssClass').value=st.cls+(st.sec?' - '+st.sec:'');
+}
+function ssRec(no){
+  const t=ssTot();
+  return {no,date:$('ssDate').value||todayISO(),alloc:$('ssAlloc').value.trim(),sid:$('ssSid').value.trim(),name:$('ssName').value,father:$('ssFather').value,house:$('ssHouse').value,cls:$('ssClass').value,status:$('ssStatus').value,charge:$('ssCharge').checked,bs:$('ssBS').checked,hpt:$('ssHPT').checked,rows:ss.rows.map(x=>({...x})),r1:$('ssR1').value.trim(),r2:$('ssR2').value.trim(),r3:$('ssR3').value.trim(),iv:t.iv,ds:t.ds,gs:t.gs,total:t.tt,cm:ss.cm.map(x=>({...x}))};
+}
+function ssReset(){
+  ss={rows:[],cm:[]}; editSS=null;
+  ['ssAlloc','ssSid','ssName','ssFather','ssHouse','ssStatus','ssClass','ssR1','ssR2','ssR3','ssCm','ssCode','ssDesc','ssUnit','ssAv','ssQty','ssAvg','ssRate','ssDisc','ssGst','ssAmt'].forEach(i=>$(i).value='');
+  $('ssDate').value=todayISO(); $('ssNo').value='(auto)'; $('ssCharge').checked=true; $('ssBS').checked=false; $('ssHPT').checked=false;
+  $('ssMeta').innerHTML='Created By: -<br>Last Updated: -'; ssDraw();
+}
+function ssSave(){
+  if(!ss.rows.length) return showToast('Add at least one item.');
+  if(!$('ssName').value) return showToast('Enter a valid Student ID first.');
+  const need={}; ss.rows.forEach(r=>need[r.code]=(need[r.code]||0)+r.qty);
+  for(const c in need){const it=item(c),back=editSS?editSS.rows.filter(o=>o.code===c).reduce((a,o)=>a+o.qty,0):0; if(!it||need[c]>it.qty+back) return showToast('Not enough stock for '+(it?it.name:c));}
+  let no;
+  if(editSS){
+    no=editSS.no;
+    editSS.rows.forEach(o=>{const it=item(o.code); if(it){it.qty+=o.qty;state.tx.push({itemId:it.id,itemName:it.name,type:'in',qty:o.qty,reason:'Edit of '+no+' (old sale reversed)',at:Date.now()});}});
+  }else{const n=(S.n.SS||0)+1; S.n.SS=n; const d=new Date(); no='SS'+d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+String(n).padStart(4,'0');}
+  ss.rows.forEach(r=>{const it=item(r.code); it.qty-=r.qty; state.tx.push({itemId:it.id,itemName:it.name,type:'out',qty:r.qty,reason:'Student Sale '+no+' - '+$('ssName').value,at:Date.now()});});
+  const rec=ssRec(no);
+  if(editSS) Object.assign(editSS,rec,{upd:Date.now()}); else S.ss.push(Object.assign(rec,{id:Date.now()+'',created:Date.now(),upd:Date.now()}));
+  saveState(); sv(); renderAll(); ssReset(); ssList(); showToast(no+' saved.');
+}
+function ssPrintRec(r){
+  const w=window.open('','_blank'); if(!w) return showToast('Allow pop-ups to print.');
+  w.document.write(`<!DOCTYPE html><html><head><title>${esc(r.no)}</title><style>body{font-family:Georgia,serif;padding:20px}table{width:100%;border-collapse:collapse;margin-top:10px}th,td{border:1px solid #999;padding:6px;font-size:12px}th{background:#233C2C;color:#fff}</style></head><body><h2>Cornerstone Global Campus - Student Sale</h2><p><b>SS No:</b> ${esc(r.no)} | <b>Date:</b> ${r.date} | <b>Allocation:</b> ${esc(r.alloc||'-')} | <b>Charge:</b> ${r.charge?'Yes':'No'}</p><p><b>Student ID:</b> ${esc(r.sid)} | <b>Name:</b> ${esc(r.name)} | <b>Father:</b> ${esc(r.father)} | <b>Class:</b> ${esc(r.cls)} | <b>House:</b> ${esc(r.house||'-')}</p><table><thead><tr><th>Sr</th><th>Code</th><th>Description</th><th>Unit</th><th>Qty</th><th>Rate</th><th>Disc%</th><th>GST%</th><th>Amount</th></tr></thead><tbody>${r.rows.map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x.code)}</td><td>${esc(x.name)}</td><td>${esc(x.unit)}</td><td>${x.qty}</td><td>${x.rate}</td><td>${x.disc}</td><td>${x.gst}</td><td>${ssA(x).t.toFixed(2)}</td></tr>`).join('')}</tbody></table><p>Item Value: ${r.iv.toFixed(2)} | Discount: ${r.ds.toFixed(2)} | GST: ${r.gs.toFixed(2)} | <b>Total: ${r.total.toFixed(2)}</b></p><p>${esc([r.r1,r.r2,r.r3].filter(Boolean).join(' / '))}</p><p style="margin-top:40px">Received By: ____________ &nbsp;&nbsp; Store Incharge: ____________</p></body></html>`);
+  w.document.close(); setTimeout(()=>w.print(),300);
+}
+function ssList(){
+  const q=$('ssSearch').value.trim().toLowerCase();
+  const L=S.ss.filter(r=>!q||(r.no+' '+r.sid+' '+r.name).toLowerCase().includes(q)).sort((a,b)=>b.upd-a.upd);
+  $('ssListPanel').style.display='block';
+  $('ssListBody').innerHTML=L.length?L.map(r=>`<tr><td><span class="code">${esc(r.no)}</span></td><td>${r.date}</td><td>${esc(r.sid)}</td><td>${esc(r.name)}</td><td>${esc(r.cls)}</td><td>${r.charge?'Yes':'No'}</td><td>${fmtMoney(r.total)}</td><td><div class="rowbtns"><button style="background:var(--gold)" data-ss="edit" data-id="${r.id}">Edit</button><button style="background:var(--ink)" data-ss="print" data-id="${r.id}">Print</button><button class="out" data-ss="del" data-id="${r.id}">Delete</button></div></td></tr>`).join(''):empty(8,'No student sales yet.');
+}
+function ssLoad(r){
+  editSS=r; ss={rows:r.rows.map(x=>({...x})),cm:(r.cm||[]).map(x=>({...x}))};
+  $('ssDate').value=r.date; $('ssNo').value=r.no; $('ssAlloc').value=r.alloc||''; $('ssSid').value=r.sid; $('ssName').value=r.name; $('ssFather').value=r.father||''; $('ssHouse').value=r.house||''; $('ssStatus').value=r.status||''; $('ssClass').value=r.cls||'';
+  $('ssCharge').checked=!!r.charge; $('ssBS').checked=!!r.bs; $('ssHPT').checked=!!r.hpt; $('ssR1').value=r.r1||''; $('ssR2').value=r.r2||''; $('ssR3').value=r.r3||'';
+  $('ssMeta').innerHTML='Created By: Store User ('+new Date(r.created).toLocaleString()+')<br>Last Updated: Store User ('+new Date(r.upd).toLocaleString()+')';
+  $('ssListPanel').style.display='none'; ssDraw(); window.scrollTo(0,0); showToast('Editing '+r.no+'. Change and press Save.');
+}
+$('ssCode').addEventListener('change',()=>{const it=item($('ssCode').value); if(it) ssFill(it);});
+$('ssDesc').addEventListener('change',()=>{const v=$('ssDesc').value.trim().toLowerCase(),it=state.items.find(x=>x.name.toLowerCase()===v); if(it) ssFill(it);});
+['ssQty','ssRate','ssDisc','ssGst'].forEach(i=>$(i).addEventListener('input',ssCalc));
+$('ssSid').addEventListener('change',ssLookup); $('ssChk').onclick=ssLookup;
+$('ssAdd').onclick=()=>{
+  const it=item($('ssCode').value); if(!it) return showToast('Enter a valid item code.');
+  const q=parseFloat($('ssQty').value)||0; if(q<=0) return showToast('Enter quantity.');
+  const back=editSS?editSS.rows.filter(o=>o.code===it.code).reduce((a,o)=>a+o.qty,0):0, used=ss.rows.filter(o=>o.code===it.code).reduce((a,o)=>a+o.qty,0);
+  if(used+q>it.qty+back) return showToast('Only '+fmtNum(it.qty+back-used)+' available for '+it.name);
+  ss.rows.push({code:it.code,name:$('ssDesc').value.trim()||it.name,unit:$('ssUnit').value.trim()||it.unit,qty:q,avg:it.rate,rate:parseFloat($('ssRate').value)||0,disc:parseFloat($('ssDisc').value)||0,gst:parseFloat($('ssGst').value)||0});
+  ['ssCode','ssDesc','ssUnit','ssAv','ssQty','ssAvg','ssRate','ssDisc','ssGst','ssAmt'].forEach(i=>$(i).value='');
+  ssDraw(); $('ssCode').focus();
+};
+$('ssRows').addEventListener('click',e=>{const b=e.target.closest('[data-ssdel]'); if(b){ss.rows.splice(+b.dataset.ssdel,1);ssDraw();}});
+$('ssCmAdd').onclick=()=>{
+  const t=$('ssCm').value.trim(); if(!t) return;
+  ss.cm.push({at:Date.now(),user:'Store User',level:'Store',text:t}); $('ssCm').value='';
+  if(editSS){editSS.cm=ss.cm.map(x=>({...x}));sv();} ssDraw();
+};
+$('ssSave').onclick=ssSave; $('ssRefresh').onclick=ssReset; $('ssList').onclick=ssList; $('ssSearch').addEventListener('input',ssList);
+$('ssPrint').onclick=()=>{ if(!ss.rows.length) return showToast('Add items first.'); ssPrintRec(ssRec($('ssNo').value)); };
+$('ssListBody').addEventListener('click',e=>{
+  const b=e.target.closest('[data-ss]'); if(!b) return; const r=S.ss.find(x=>x.id===b.dataset.id), a=b.dataset.ss;
+  if(a==='edit') ssLoad(r); else if(a==='print') ssPrintRec(r);
+  else if(confirm('Delete '+r.no+'? Stock will be restored.')){
+    r.rows.forEach(o=>{const it=item(o.code); if(it){it.qty+=o.qty;state.tx.push({itemId:it.id,itemName:it.name,type:'in',qty:o.qty,reason:'Cancelled '+r.no,at:Date.now()});}});
+    S.ss=S.ss.filter(x=>x!==r); saveState(); sv(); renderAll(); ssList();
+  }
+});
+ssReset();
+repCats(); renderDocs(); renderCons();
+})();
+</script>
+</body>
+</html>
